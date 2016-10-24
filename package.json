@@ -1,0 +1,30 @@
+{
+  "name": "clappr-ad-plugin",
+  "version": "0.0.1",
+  "description": "Plugin for Clappr for playing advertisements by VAST (preroll only now).",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vix-simplex/clappr-ad-plugin.git"
+  },
+  "keywords": [
+    "clappr",
+    "vast",
+    "videoplayer",
+    "plugin"
+  ],
+  "author": "vix-simplex <vix.simplex@gmail.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/vix-simplex/clappr-ad-plugin/issues"
+  },
+  "homepage": "https://github.com/vix-simplex/clappr-ad-plugin#readme",
+  "devDependencies": {
+    "babel-cli": "^6.16.0",
+    "babel-core": "^6.17.0",
+    "babel-preset-es2015": "^6.16.0"
+  }
+}
