@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>clappr ad plugin</title>
+    <!--<script src="http://cdn.clappr.io/latest/clappr.min.js"></script>-->
+    <script src="../clappr-1142-20161018.js"></script>
+    <script src="../dist/ad_plugin.js"></script>
+    <script src="../dist/vast_parser.js"></script>
+    <!--<script src="../src/vast_parser.js"></script>-->
+    <!--<script src="../src/ad_plugin.js"></script>-->
+    <!--<script src="../dist/clappr_ad_plugin.js"></script>-->
+</head>
+<body>
+<div id="player"></div>
+<script>
+    // div adButton in player
+    var p = Clappr.UIContainerPlugin.extend({
+        name: 'hello_world',
+        initialize: function () {
+            this.render();
+        },
+        bindEvents: function () {
+            this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.show);
+//            this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.hide);
+        },
+        hide: function () {
+            this.$el.hide();
+        },
+        show: function () {
+            this.$el.show();
+        },
+        render: function () {
+//            this.$el.html('You can skip this ad in ');
+            this.$el.css('font-size', '20px');
+            this.$el.css('position', 'absolute');
+            this.$el.css('color', 'white');
+//            this.$el.css('margin-right', '0%');
+            this.$el.css('top', '70%');
+            this.$el.css('right', '0%');
+            this.$el.css('background-color', 'black');
+            this.$el.css('z-index', '100500');
+            this.$el.css('border', 'solid 3px #333333');
+            this.$el.css('padding', '5px');
+            this.container.$el.append(this.$el);
+            this.$el[0].id = 'adButton';
+//            this.hide();
+
+            this.show();
+            return this;
+        }
+
+    });
+
+    //    get vast and parse mediaFile
+    var parser = new Parser('');
+    parser.get_vast('https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml');
+    let AdMediaFile = parser.get_media_file();
+
+    // playlist with ad-video and main video
+    let playlist = [
+        AdMediaFile,
+        'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4',
+    ];
+
+    class mediaControlSeekDisable extends Clappr.MediaControl {
+        constructor(options) {
+            super(options);
+        }
+
+        getSettings() {
+            let newSettings = $.extend({}, this.container.settings);
+            newSettings.seekEnabled = false;
+            return newSettings;
+        }
+    }
+
+    var player = new Clappr.Player({
+        source: playlist.shift(),
+//        source: "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
+//        poster: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/HelloWorld.svg/512px-HelloWorld.svg.png",
+        parentId: "#player",
+        hideMediaControl: false,
+        mediacontrol: {external: mediaControlSeekDisable},
+        autoPlay: true,
+        plugins: [p]
+    });
+
+    // fired when clip ended
+    player.on(Clappr.Events.PLAYER_ENDED, function () {
+        skipAd();
+    });
+
+    function skipAd() {
+        //    delete player and create new with new config
+        function reloadClappr(plr, newconf) {
+            var newplayer = plr.configure(newconf);
+//            v.onclick = '';
+            newplayer = new Clappr.Player(newplayer.options);
+            plr.destroy();
+            player = newplayer;
+        }
+
+        if (playlist.length > 0) {
+            reloadClappr(player, {
+                mediacontrol: {seekbar: "#ff43a4", buttons: "#ff43a4"},
+                autoPlay: true,
+                hideMediaControl: false,
+            });
+            player.load(playlist.shift());
+            let ab = document.getElementById('adButton');
+            ab.parentNode.removeChild(ab);
+        }
+    }
+
+    a = new adPlugin(skipoffset = 5000);
+</script>
+</body>
+</html>
