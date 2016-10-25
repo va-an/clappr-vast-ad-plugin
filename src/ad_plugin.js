@@ -42,5 +42,3 @@ class adPlugin {
 //            }, skipoffset + 100500);
     }
 }
-
-exports.adPlugin = adPlugin;

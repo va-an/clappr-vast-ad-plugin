@@ -57,5 +57,3 @@ var adPlugin = function () {
 
     return adPlugin;
 }();
-
-exports.adPlugin = adPlugin;

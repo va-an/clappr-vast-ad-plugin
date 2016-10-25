@@ -69,5 +69,3 @@ Parser.prototype.get_vast = function (adSrc) {
 // parser.get_media_file();
 // parser.get_tracking_events()
 // console.log(parser.media_file)
-
-exports.adPlugin = Parser;
