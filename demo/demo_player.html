@@ -27,18 +27,6 @@
         'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4',
     ];
 
-//    var z = 'pew called';
-//    var t = ['1', '2', '3'];
-//
-//    function pew(zz, tt) {
-//        console.log(zz);
-//        console.log(tt);
-//    }
-
-//    playlist.shift();
-//    pew(playlist, z);
-
-
     var player = new Clappr.Player({
         source: playlist.shift(),
 //        source: "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
@@ -50,36 +38,13 @@
         plugins: [adButton]
     });
 
+    var a = new adPlugin(skipoffset = 3000, plst = playlist, plr = player);
+
     // fired when clip ended
     player.on(Clappr.Events.PLAYER_ENDED, function () {
-        skipAd(player, playlist);
+        a.skipAd(player, playlist);
     });
 
-    function skipAd(currentPlayer, plst) {
-        console.log(plst);
-        console.log(playlist);
-        //    delete player and create new with new config
-        function reloadClappr(plr, newconf) {
-            var newplayer = plr.configure(newconf);
-//            v.onclick = '';
-            newplayer = new Clappr.Player(newplayer.options);
-            plr.destroy();
-            currentPlayer = newplayer;
-        }
-
-        if (playlist.length > 0) {
-            reloadClappr(player, {
-                mediacontrol: {seekbar: "#ff43a4", buttons: "#ff43a4"},
-                autoPlay: true,
-                hideMediaControl: false,
-            });
-            currentPlayer.load(playlist.shift());
-            let ab = document.getElementById('adButton');
-            ab.parentNode.removeChild(ab);
-        }
-    }
-
-    var a = new adPlugin(skipoffset = 3000);
 </script>
 </body>
 </html>

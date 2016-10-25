@@ -2,33 +2,29 @@
 
 // div adButton in player
 var adButton = Clappr.UIContainerPlugin.extend({
-    name: 'hello_world',
+    name: 'ad_button',
     initialize: function initialize() {
         this.render();
     },
+
     bindEvents: function bindEvents() {
         this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.show);
-        //            this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.test);
-        this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.test);
-        //            this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.hide);
+        this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToAdVideo);
+        // this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.hide);
     },
+
+    clickToAdVideo: function () {
+        window.open('https://rick.amigocraft.net/', '_blank').focus();
+    },
+
     hide: function hide() {
         this.$el.hide();
     },
+
     show: function show() {
         this.$el.show();
     },
 
-    test: function test() {
-        //            this.core.thistoggleFullscreen();
-    },
-
-    //        test: function () {
-    //            let v = document.getElementsByTagName('video')[0];
-    //            v.onclick = function () {
-    //                window.open('https://rick.amigocraft.net/', '_blank').focus();
-    //            };
-    //        },
     render: function render() {
         //            this.$el.html('You can skip this ad in ');
         this.$el.css('font-size', '20px');
@@ -48,5 +44,16 @@ var adButton = Clappr.UIContainerPlugin.extend({
         this.show();
         return this;
     }
-
 });
+
+class mediaControlSeekDisable extends Clappr.MediaControl {
+    constructor(options) {
+        super(options);
+    }
+
+    getSettings() {
+        let newSettings = $.extend({}, this.container.settings);
+        newSettings.seekEnabled = false;
+        return newSettings;
+    }
+}

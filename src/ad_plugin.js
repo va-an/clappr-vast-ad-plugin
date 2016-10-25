@@ -1,26 +1,17 @@
 class adPlugin {
-    constructor(skipoffset) {
-        this.adVideoClickEvent();
-//            this.adSkipButtonEvent();
+    constructor(skipoffset, plst, plr) {
         this.adButtonTimer(skipoffset);
         this.ab = document.getElementById('adButton');
-//            this.v = document.getElementsByTagName('video')[0];
-    }
-
-    adVideoClickEvent() {
-        // show ad-site when ad-video was clicked
-        let v = document.getElementsByTagName('video')[0];
-        v.onclick = function () {
-            window.open('https://rick.amigocraft.net/', '_blank').focus();
-        };
+        this.playlist = plst;
+        this.player = plr;
     }
 
     adSkipButtonEvent() {
+        let self = this;
         // click-event for adSkipButton
-        console.log('adSkipButtonEvent called');
         this.ab.onclick = function () {
-            console.log('skip ad');
-            skipAd();
+            console.log('skipped ad');
+            self.skipAd();
         };
     }
 
@@ -40,5 +31,28 @@ class adPlugin {
 //            setTimeout(function () {
 //                clearInterval(timerId);
 //            }, skipoffset + 100500);
+    }
+
+    skipAd(currentPlayer) {
+        console.log(playlist);
+        //    delete player and create new with new config
+        function reloadClappr(plr, newconf) {
+            var newplayer = plr.configure(newconf);
+//            v.onclick = '';
+            newplayer = new Clappr.Player(newplayer.options);
+            plr.destroy();
+            currentPlayer = newplayer;
+        }
+
+        if (playlist.length > 0) {
+            reloadClappr(player, {
+                mediacontrol: {seekbar: "#ff43a4", buttons: "#ff43a4"},
+                autoPlay: true,
+                hideMediaControl: false,
+            });
+            currentPlayer.load(playlist.shift());
+            let ab = document.getElementById('adButton');
+            ab.parentNode.removeChild(ab);
+        }
     }
 }

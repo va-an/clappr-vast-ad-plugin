@@ -5,33 +5,23 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var adPlugin = function () {
-    function adPlugin(skipoffset) {
+    function adPlugin(skipoffset, plst, plr) {
         _classCallCheck(this, adPlugin);
 
-        this.adVideoClickEvent();
-        //            this.adSkipButtonEvent();
         this.adButtonTimer(skipoffset);
         this.ab = document.getElementById('adButton');
-        //            this.v = document.getElementsByTagName('video')[0];
+        this.playlist = plst;
+        this.player = plr;
     }
 
     _createClass(adPlugin, [{
-        key: 'adVideoClickEvent',
-        value: function adVideoClickEvent() {
-            // show ad-site when ad-video was clicked
-            var v = document.getElementsByTagName('video')[0];
-            v.onclick = function () {
-                window.open('https://rick.amigocraft.net/', '_blank').focus();
-            };
-        }
-    }, {
         key: 'adSkipButtonEvent',
         value: function adSkipButtonEvent() {
+            var self = this;
             // click-event for adSkipButton
-            console.log('adSkipButtonEvent called');
             this.ab.onclick = function () {
-                console.log('skip ad');
-                skipAd();
+                console.log('skipped ad');
+                self.skipAd();
             };
         }
     }, {
@@ -52,6 +42,30 @@ var adPlugin = function () {
             //            setTimeout(function () {
             //                clearInterval(timerId);
             //            }, skipoffset + 100500);
+        }
+    }, {
+        key: 'skipAd',
+        value: function skipAd(currentPlayer) {
+            console.log(playlist);
+            //    delete player and create new with new config
+            function reloadClappr(plr, newconf) {
+                var newplayer = plr.configure(newconf);
+                //            v.onclick = '';
+                newplayer = new Clappr.Player(newplayer.options);
+                plr.destroy();
+                currentPlayer = newplayer;
+            }
+
+            if (playlist.length > 0) {
+                reloadClappr(player, {
+                    mediacontrol: { seekbar: "#ff43a4", buttons: "#ff43a4" },
+                    autoPlay: true,
+                    hideMediaControl: false
+                });
+                currentPlayer.load(playlist.shift());
+                var ab = document.getElementById('adButton');
+                ab.parentNode.removeChild(ab);
+            }
         }
     }]);
 

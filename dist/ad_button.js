@@ -1,34 +1,39 @@
 'use strict';
 
 // div adButton in player
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var adButton = Clappr.UIContainerPlugin.extend({
-    name: 'hello_world',
+    name: 'ad_button',
     initialize: function initialize() {
         this.render();
     },
+
     bindEvents: function bindEvents() {
         this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.show);
-        //            this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.test);
-        this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.test);
-        //            this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.hide);
+        this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToAdVideo);
+        // this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.hide);
     },
+
+    clickToAdVideo: function clickToAdVideo() {
+        window.open('https://rick.amigocraft.net/', '_blank').focus();
+    },
+
     hide: function hide() {
         this.$el.hide();
     },
+
     show: function show() {
         this.$el.show();
     },
 
-    test: function test() {
-        //            this.core.thistoggleFullscreen();
-    },
-
-    //        test: function () {
-    //            let v = document.getElementsByTagName('video')[0];
-    //            v.onclick = function () {
-    //                window.open('https://rick.amigocraft.net/', '_blank').focus();
-    //            };
-    //        },
     render: function render() {
         //            this.$el.html('You can skip this ad in ');
         this.$el.css('font-size', '20px');
@@ -48,17 +53,25 @@ var adButton = Clappr.UIContainerPlugin.extend({
         this.show();
         return this;
     }
-
 });
 
-class mediaControlSeekDisable extends Clappr.MediaControl {
-    constructor(options) {
-        super(options);
+var mediaControlSeekDisable = function (_Clappr$MediaControl) {
+    _inherits(mediaControlSeekDisable, _Clappr$MediaControl);
+
+    function mediaControlSeekDisable(options) {
+        _classCallCheck(this, mediaControlSeekDisable);
+
+        return _possibleConstructorReturn(this, (mediaControlSeekDisable.__proto__ || Object.getPrototypeOf(mediaControlSeekDisable)).call(this, options));
     }
 
-    getSettings() {
-        let newSettings = $.extend({}, this.container.settings);
-        newSettings.seekEnabled = false;
-        return newSettings;
-    }
-}
+    _createClass(mediaControlSeekDisable, [{
+        key: 'getSettings',
+        value: function getSettings() {
+            var newSettings = $.extend({}, this.container.settings);
+            newSettings.seekEnabled = false;
+            return newSettings;
+        }
+    }]);
+
+    return mediaControlSeekDisable;
+}(Clappr.MediaControl);
