@@ -1,5 +1,3 @@
-# Repo in progress, code come to coming soon.
-
 # clappr-ad-plugin
 Plugin for Clappr for playing advertisements by VAST (preroll only now).
 
