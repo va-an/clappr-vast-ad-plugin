@@ -1,5 +1,3 @@
-# Repo in progress, code come to coming soon.
-
 # clappr-ad-plugin
 Plugin for Clappr for playing advertisements by VAST (preroll only now).
 
@@ -9,7 +7,9 @@ This work was started independently from https://github.com/kslimani/clappr-html
 At the moment I haven't time make code beautiful, It just works. (Yep, I know what code is awful). I definitely make all how need, but not right now.
 
 # Demo
-in progress
+http://d11.cdnvideo.ru/videojs/clappr/clappr-vast-plugin/demo/demo_player.html
+
+If it dont't work - let me know.
 
 # Usage
 in progress
