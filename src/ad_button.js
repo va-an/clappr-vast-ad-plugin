@@ -1,5 +1,3 @@
-'use strict';
-
 // div adButton in player
 var adButton = Clappr.UIContainerPlugin.extend({
     name: 'ad_button',
