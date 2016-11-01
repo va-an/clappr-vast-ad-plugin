@@ -59,6 +59,8 @@
                 //                self.core.containers[0].settings.seekEnabled = false;
                 self.destroy();
                 d.parentElement.removeChild(d);
+                mainPlayer.resize({height: window.innerHeight - 30, width: window.innerWidth - 30});
+                document.getElementById('player1').style.overflow = 'hidden';
                 mainPlayer.play();
             },
         }

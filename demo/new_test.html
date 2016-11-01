@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>new test</title>
+    <script src="http://cdn.clappr.io/latest/clappr.min.js"></script>
+    <!--<script src="../dist/ad_button.js"></script>-->
+    <!--<script src="../dist/ad_plugin.js"></script>-->
+    <script src="../dist/new_test.js"></script>
+    <script src="../dist/vast_parser.js"></script>
+    <link rel="icon" href="data:;base64,=">
+</head>
+<body>
+<div id="player"></div>
+<script>
+    var parser = new Parser('');
+    parser.get_vast('https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml');
+    var AdMediaFile = parser.get_media_file();
+
+    // playlist with ad-video and main video
+    var playlist = [
+        AdMediaFile,
+        'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4',
+    ];
+
+    var p = new Clappr.Player({
+        source: playlist.shift(),
+        height: 360,
+        width: 640,
+        hideMediaControl: false,
+        parentId: "#player",
+        autoPlay: true,
+        exitFullscreenOnEnd: false,
+        plugins: [adButton],
+    });
+
+    p.on(Clappr.Events.PLAYER_ENDED, function () {
+        if (playlist.length > 0) {
+            p.load(playlist.shift(), '', true);
+            var ab = document.getElementById('adButton');
+            ab.parentNode.removeChild(ab);
+        }
+    });
+
+    p.on(Clappr.Events.PLAYER_PLAY, function () {
+        p.core.mediaControl.container.settings.seekEnabled = playlist.length <= 0;
+//        if (playlist.length > 0) {
+//            p.core.mediaControl.container.settings.seekEnabled = false;
+//        } else {
+//            p.core.mediaControl.container.settings.seekEnabled = true;
+//        }
+    });
+
+    //    p.seek(8);
+    var a = new adPlugin(skipoffset = 3000, plst = playlist, plr = p);
+</script>
+</body>
+</html>
