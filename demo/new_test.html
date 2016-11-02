@@ -8,6 +8,7 @@
     <!--<script src="../dist/ad_plugin.js"></script>-->
     <script src="../dist/new_test.js"></script>
     <script src="../dist/vast_parser.js"></script>
+    <script src="../dist/vast-client.js"></script>
     <link rel="icon" href="data:;base64,=">
 </head>
 <body>
@@ -40,16 +41,38 @@
         }
     })();
 
+    var amf = '';
+    var AdMediaFile = '';
+    var playlist = [];
+    new Promise(function (resolve, rejected) {
+        DMVAST.client.get('https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml', function (r, e) {
+            console.log(r);
+            amf = r.ads[0].creatives[0].mediaFiles[0].fileURL;
+            AdMediaFile = amf;
+            console.log(amf);
+        });
+    }).then(function () {
+        playlist = [
+            AdMediaFile,
+            'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4',
+        ];
+    }, function () {
+        console.log('error vast');
+    });
 
-    var parser = new Parser('');
-    parser.get_vast('https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml');
-    var AdMediaFile = parser.get_media_file();
+
+    //    var parser = new Parser('');
+    //    parser.get_vast('https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml');
+    //    var AdMediaFile = parser.get_media_file();
+    //
+    //    console.log(AdMediaFile);
+    //    console.log(amf);
 
     // playlist with ad-video and main video
-    var playlist = [
-        AdMediaFile,
-        'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4',
-    ];
+    //    var playlist = [
+    //        AdMediaFile,
+    //        'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4',
+    //    ];
 
     var p = new Clappr.Player({
         source: playlist.shift(),
