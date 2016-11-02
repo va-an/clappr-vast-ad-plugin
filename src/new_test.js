@@ -20,7 +20,8 @@ class adPlugin {
         var self = this;
         this.ab.onclick = function () {
             console.log('ab onclick');
-            self.player.load(playlist.shift(), '', true);
+            p.options.source = playlist.shift();
+            self.player.load(p.options.source, '', true);
             var ab = document.getElementById('adButton');
             ab.parentNode.removeChild(ab);
         };
@@ -60,7 +61,14 @@ var adButton = Clappr.UIContainerPlugin.extend({
         this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.show);
         this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToAdVideo);
         this.listenTo(this.container, Clappr.Events.CONTAINER_ENDED, this.hide);
+        this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.testEvent);
         // this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.hide);
+    },
+
+    testEvent: function () {
+        if (p.options.source != 'https://d11.cdnvideo.ru/videojs/files/echpochmak.mp4') {
+            this.destroy();
+        }
     },
 
     clickToAdVideo: function () {

@@ -36,7 +36,9 @@
 
     p.on(Clappr.Events.PLAYER_ENDED, function () {
         if (playlist.length > 0) {
-            p.load(playlist.shift(), '', true);
+            p.options.source = playlist.shift();
+            console.log(p.options.source);
+            p.load(p.options.source, '', true);
             var ab = document.getElementById('adButton');
             ab.parentNode.removeChild(ab);
         }
