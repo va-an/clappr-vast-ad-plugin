@@ -13,6 +13,34 @@
 <body>
 <div id="player"></div>
 <script>
+    // main visibility API function
+    // use visibility API to check if current tab is active or not
+    var _visibilityAPI = (function () {
+        var stateKey,
+                eventKey,
+                keys = {
+                    hidden: "visibilitychange",
+                    webkitHidden: "webkitvisibilitychange",
+                    mozHidden: "mozvisibilitychange",
+                    msHidden: "msvisibilitychange"
+                };
+        for (stateKey in keys) {
+            if (stateKey in document) {
+                eventKey = keys[stateKey];
+                break;
+            }
+        }
+        return {
+            'setHandler': function (c) {
+                if (c) document.addEventListener(eventKey, c);
+            },
+            'tabVisible': function () {
+                return !document[stateKey];
+            }
+        }
+    })();
+
+
     var parser = new Parser('');
     parser.get_vast('https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml');
     var AdMediaFile = parser.get_media_file();
@@ -55,6 +83,18 @@
 
     //    p.seek(8);
     var a = new adPlugin(skipoffset = 3000, plst = playlist, plr = p);
+
+    _visibilityAPI.setHandler(function () {
+        if (p.options.source == AdMediaFile) {
+            if (_visibilityAPI.tabVisible()) {
+                setTimeout(function () {
+                    p.play();
+                }, 300);
+            } else {
+                p.pause();
+            }
+        }
+    });
 </script>
 </body>
 </html>
