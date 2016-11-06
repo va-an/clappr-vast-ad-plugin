@@ -1,9 +1,88 @@
+let adVideoPlayNow = '';
+let p = '';
+let adMediaFile = '';
+let playlist = [];
+let adSkipDelay = '';
+
+let createPromise = (urlVast, video) => {
+    return new Promise(function (resolve, rejected) {
+        DMVAST.client.get(urlVast, function (r, e) {
+            adMediaFile = r.ads[0].creatives[0].mediaFiles[0].fileURL;
+            adSkipDelay = r.ads[0].creatives[0].skipDelay;
+            playlist = [
+                {
+                    source: adMediaFile,
+                    ad: true
+                },
+                {
+                    source: video,
+                    ad: false
+                }];
+            resolve();
+        });
+    });
+};
+
+// main visibility API function
+// use visibility API to check if current tab is active or not
+var _visibilityAPI = (function () {
+    var stateKey,
+        eventKey,
+        keys = {
+            hidden: "visibilitychange",
+            webkitHidden: "webkitvisibilitychange",
+            mozHidden: "mozvisibilitychange",
+            msHidden: "msvisibilitychange"
+        };
+    for (stateKey in keys) {
+        if (stateKey in document) {
+            eventKey = keys[stateKey];
+            break;
+        }
+    }
+    return {
+        'setHandler': function (c) {
+            if (c) document.addEventListener(eventKey, c);
+        },
+        'tabVisible': function () {
+            return !document[stateKey];
+        }
+    }
+})();
+
+_visibilityAPI.setHandler(function () {
+    if (p.options.source == adMediaFile) {
+        if (_visibilityAPI.tabVisible()) {
+            setTimeout(function () {
+                p.play();
+            }, 300);
+        } else {
+            p.pause();
+        }
+    }
+});
+
 class adPlugin {
     constructor(skipoffset, plst, plr) {
         this.adButtonTimer(skipoffset);
         this.playlist = plst;
         this.player = plr;
         this.ab = document.getElementById('adButton');
+        this.playerEvents(this.player, this.playlist);
+    }
+
+    playerEvents(plr, plst) {
+        console.log('player events called');
+        plr.on(Clappr.Events.PLAYER_ENDED, function () {
+            if (plst.length > 0) {
+                console.log('pew skip');
+                adPlugin.skipAd(plr, plst);
+            }
+        });
+
+        plr.on(Clappr.Events.PLAYER_PLAY, function () {
+            plr.core.mediaControl.container.settings.seekEnabled = plst.length <= 0;
+        });
     }
 
     adButtonTimer(s) {
@@ -36,7 +115,6 @@ class adPlugin {
     }
 }
 
-var adVideoPlayNow = '';
 var adButton = Clappr.UIContainerPlugin.extend({
     name: 'ad_button',
     initialize: function initialize() {

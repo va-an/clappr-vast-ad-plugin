@@ -4,80 +4,19 @@
     <meta charset="UTF-8">
     <title>new test</title>
     <!--<script src="http://cdn.clappr.io/latest/clappr.min.js"></script>-->
+    <script src="../dist/vast-client.js"></script>
     <script src="../dist/clappr.js"></script>
     <script src="../dist/new_test.js"></script>
-    <script src="../dist/vast-client.js"></script>
     <link rel="icon" href="data:;base64,=">
 </head>
 <body>
 <div id="player"></div>
 <script>
-    var p = '';
-    var adMediaFile = '';
-    var playlist = [];
-    var adObj = '';
-    var adSkipDelay = '';
-    var adVideoPlayNow = false;
+    var vastUrl = 'https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml';
+    var mainVideo = 'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4';
 
-    // main visibility API function
-    // use visibility API to check if current tab is active or not
-    var _visibilityAPI = (function () {
-        var stateKey,
-                eventKey,
-                keys = {
-                    hidden: "visibilitychange",
-                    webkitHidden: "webkitvisibilitychange",
-                    mozHidden: "mozvisibilitychange",
-                    msHidden: "msvisibilitychange"
-                };
-        for (stateKey in keys) {
-            if (stateKey in document) {
-                eventKey = keys[stateKey];
-                break;
-            }
-        }
-        return {
-            'setHandler': function (c) {
-                if (c) document.addEventListener(eventKey, c);
-            },
-            'tabVisible': function () {
-                return !document[stateKey];
-            }
-        }
-    })();
-
-    _visibilityAPI.setHandler(function () {
-        if (p.options.source == adMediaFile) {
-            if (_visibilityAPI.tabVisible()) {
-                setTimeout(function () {
-                    p.play();
-                }, 300);
-            } else {
-                p.pause();
-            }
-        }
-    });
-
-    new Promise(function (resolve, rejected) {
-        DMVAST.client.get('https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml', function (r, e) {
-            adObj = r;
-            adMediaFile = r.ads[0].creatives[0].mediaFiles[0].fileURL;
-            adSkipDelay = r.ads[0].creatives[0].skipDelay;
-
-            playlist = [
-                {
-                    source: adMediaFile,
-                    ad: true
-                },
-                {
-                    source: 'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4',
-                    ad: false
-                }];
-            resolve();
-        });
-    }).then(function () {
+    createPromise(vastUrl, mainVideo).then(function () {
         var playlistItem = playlist.shift();
-        console.log(playlistItem);
         adVideoPlayNow = playlistItem.ad;
 
         p = new Clappr.Player({
@@ -92,16 +31,6 @@
             plugins: [adButton],
         });
 
-        p.on(Clappr.Events.PLAYER_ENDED, function () {
-            if (playlist.length > 0) {
-                adPlugin.skipAd(p, playlist);
-            }
-        });
-
-        p.on(Clappr.Events.PLAYER_PLAY, function () {
-            p.core.mediaControl.container.settings.seekEnabled = playlist.length <= 0;
-        });
-
 //        new adPlugin(adSkipDelay, plst = playlist, plr = p);
         new adPlugin(3, plst = playlist, plr = p);
 
@@ -109,7 +38,6 @@
         console.log('error vast');
     });
 
-    //    p.seek(8);
 </script>
 </body>
 </html>
