@@ -3,17 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>new test</title>
-    <script src="http://cdn.clappr.io/latest/clappr.min.js"></script>
-    <!--<script src="../dist/ad_button.js"></script>-->
-    <!--<script src="../dist/ad_plugin.js"></script>-->
+    <!--<script src="http://cdn.clappr.io/latest/clappr.min.js"></script>-->
+    <script src="../dist/clappr.js"></script>
     <script src="../dist/new_test.js"></script>
-    <script src="../dist/vast_parser.js"></script>
     <script src="../dist/vast-client.js"></script>
     <link rel="icon" href="data:;base64,=">
 </head>
 <body>
 <div id="player"></div>
 <script>
+    var p = '';
+    var adMediaFile = '';
+    var playlist = [];
+    var adObj = '';
+    var adSkipDelay = '';
+    var adVideoPlayNow = false;
+
     // main visibility API function
     // use visibility API to check if current tab is active or not
     var _visibilityAPI = (function () {
@@ -41,74 +46,8 @@
         }
     })();
 
-    var amf = '';
-    var AdMediaFile = '';
-    var playlist = [];
-    new Promise(function (resolve, rejected) {
-        DMVAST.client.get('https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml', function (r, e) {
-            console.log(r);
-            amf = r.ads[0].creatives[0].mediaFiles[0].fileURL;
-            AdMediaFile = amf;
-            console.log(amf);
-        });
-    }).then(function () {
-        playlist = [
-            AdMediaFile,
-            'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4',
-        ];
-    }, function () {
-        console.log('error vast');
-    });
-
-
-    //    var parser = new Parser('');
-    //    parser.get_vast('https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml');
-    //    var AdMediaFile = parser.get_media_file();
-    //
-    //    console.log(AdMediaFile);
-    //    console.log(amf);
-
-    // playlist with ad-video and main video
-    //    var playlist = [
-    //        AdMediaFile,
-    //        'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4',
-    //    ];
-
-    var p = new Clappr.Player({
-        source: playlist.shift(),
-        height: 360,
-        width: 640,
-        hideMediaControl: false,
-        parentId: "#player",
-        autoPlay: true,
-        exitFullscreenOnEnd: false,
-        plugins: [adButton],
-    });
-
-    p.on(Clappr.Events.PLAYER_ENDED, function () {
-        if (playlist.length > 0) {
-            p.options.source = playlist.shift();
-            console.log(p.options.source);
-            p.load(p.options.source, '', true);
-            var ab = document.getElementById('adButton');
-            ab.parentNode.removeChild(ab);
-        }
-    });
-
-    p.on(Clappr.Events.PLAYER_PLAY, function () {
-        p.core.mediaControl.container.settings.seekEnabled = playlist.length <= 0;
-//        if (playlist.length > 0) {
-//            p.core.mediaControl.container.settings.seekEnabled = false;
-//        } else {
-//            p.core.mediaControl.container.settings.seekEnabled = true;
-//        }
-    });
-
-    //    p.seek(8);
-    var a = new adPlugin(skipoffset = 3000, plst = playlist, plr = p);
-
     _visibilityAPI.setHandler(function () {
-        if (p.options.source == AdMediaFile) {
+        if (p.options.source == adMediaFile) {
             if (_visibilityAPI.tabVisible()) {
                 setTimeout(function () {
                     p.play();
@@ -118,6 +57,59 @@
             }
         }
     });
+
+    new Promise(function (resolve, rejected) {
+        DMVAST.client.get('https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml', function (r, e) {
+            adObj = r;
+            adMediaFile = r.ads[0].creatives[0].mediaFiles[0].fileURL;
+            adSkipDelay = r.ads[0].creatives[0].skipDelay;
+
+            playlist = [
+                {
+                    source: adMediaFile,
+                    ad: true
+                },
+                {
+                    source: 'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4',
+                    ad: false
+                }];
+            resolve();
+        });
+    }).then(function () {
+        var playlistItem = playlist.shift();
+        console.log(playlistItem);
+        adVideoPlayNow = playlistItem.ad;
+
+        p = new Clappr.Player({
+            source: playlistItem.source,
+            height: 360,
+            width: 640,
+            hideMediaControl: false,
+            parentId: "#player",
+            autoPlay: true,
+            exitFullscreenOnEnd: false,
+//            mute: true,
+            plugins: [adButton],
+        });
+
+        p.on(Clappr.Events.PLAYER_ENDED, function () {
+            if (playlist.length > 0) {
+                adPlugin.skipAd(p, playlist);
+            }
+        });
+
+        p.on(Clappr.Events.PLAYER_PLAY, function () {
+            p.core.mediaControl.container.settings.seekEnabled = playlist.length <= 0;
+        });
+
+//        new adPlugin(adSkipDelay, plst = playlist, plr = p);
+        new adPlugin(3, plst = playlist, plr = p);
+
+    }, function () {
+        console.log('error vast');
+    });
+
+    //    p.seek(8);
 </script>
 </body>
 </html>

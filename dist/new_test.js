@@ -15,57 +15,43 @@ var adPlugin = function () {
     }
 
     _createClass(adPlugin, [{
-        key: 'adSkipButtonEvent',
-        value: function adSkipButtonEvent() {
-            // click-event for adSkipButton
-            //            this.ab.onclick = function () {
-            // TODO move this to skipAd function
-            //                console.log('click skip-button');
-            //                var ab = document.getElementById('adButton');
-            //                ab.parentNode.removeChild(ab);
-            //                this.player.load(playlist.shift());
-            //                this.player.core.mediaControl.container.settings.seekEnabled = true;
-            //                this.skipAd();
-            //            };
-            var self = this;
-            this.ab.onclick = function () {
-                console.log('ab onclick');
-                p.options.source = playlist.shift();
-                self.player.load(p.options.source, '', true);
-                var ab = document.getElementById('adButton');
-                ab.parentNode.removeChild(ab);
-            };
-        }
-    }, {
         key: 'adButtonTimer',
         value: function adButtonTimer(s) {
             var self = this;
             var timerId = setInterval(function () {
-                //                console.log(player.getCurrentTime());
-                self.ab.textContent = 'You can skip this ad in ' + parseInt(s / 1000 - plr.getCurrentTime() + 1);
-                if (plr.getCurrentTime() > s / 1000) {
+                self.ab.textContent = 'You can skip this ad in ' + parseInt(s - plr.getCurrentTime() + 1);
+                if (plr.getCurrentTime() > s) {
                     clearInterval(timerId);
                     self.adSkipButtonEvent();
                     self.ab.textContent = 'Skip Ad';
                     console.log('time to skip ad!');
                 }
             }, 1000);
-
-            //            setTimeout(function () {
-            //                clearInterval(timerId);
-            //            }, skipoffset + 100500);
+        }
+    }, {
+        key: 'adSkipButtonEvent',
+        value: function adSkipButtonEvent() {
+            var self = this;
+            this.ab.onclick = function () {
+                console.log('ab onclick');
+                adPlugin.skipAd(self.player, self.playlist);
+            };
         }
     }], [{
         key: 'skipAd',
-        value: function skipAd() {
-            console.log('ab onclick');
-            //            console.log(this.player);
+        value: function skipAd(p, playlist) {
+            var playlistItem = playlist.shift();
+            adVideoPlayNow = playlistItem.ad;
+            p.load(playlistItem.source, '', true);
+            var ab = document.getElementById('adButton');
+            ab.parentNode.removeChild(ab);
         }
     }]);
 
     return adPlugin;
 }();
 
+var adVideoPlayNow = '';
 var adButton = Clappr.UIContainerPlugin.extend({
     name: 'ad_button',
     initialize: function initialize() {
@@ -73,15 +59,13 @@ var adButton = Clappr.UIContainerPlugin.extend({
     },
 
     bindEvents: function bindEvents() {
-        this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.show);
+        // this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.show);
         this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToAdVideo);
-        this.listenTo(this.container, Clappr.Events.CONTAINER_ENDED, this.hide);
-        this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.testEvent);
-        // this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.hide);
+        this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.destroyAdPlugin);
     },
 
-    testEvent: function testEvent() {
-        if (p.options.source != 'https://d11.cdnvideo.ru/videojs/files/echpochmak.mp4') {
+    destroyAdPlugin: function destroyAdPlugin() {
+        if (!adVideoPlayNow) {
             this.destroy();
         }
     },
@@ -90,21 +74,14 @@ var adButton = Clappr.UIContainerPlugin.extend({
         window.open('https://rick.amigocraft.net/', '_blank').focus();
     },
 
-    hide: function hide() {
-        console.log('hide called');
-        // this.$el.hide();
-    },
-
     show: function show() {
         this.$el.show();
     },
 
     render: function render() {
-        //            this.$el.html('You can skip this ad in ');
         this.$el.css('font-size', '20px');
         this.$el.css('position', 'absolute');
         this.$el.css('color', 'white');
-        //            this.$el.css('margin-right', '0%');
         this.$el.css('top', '70%');
         this.$el.css('right', '0%');
         this.$el.css('background-color', 'black');
@@ -113,7 +90,6 @@ var adButton = Clappr.UIContainerPlugin.extend({
         this.$el.css('padding', '5px');
         this.container.$el.append(this.$el);
         this.$el[0].id = 'adButton';
-        //            this.hide();
         this.show();
         return this;
     }
