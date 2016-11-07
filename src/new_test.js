@@ -2,13 +2,51 @@ let adVideoPlayNow = '';
 let p = '';
 let adMediaFile = '';
 let playlist = [];
-let adSkipDelay = '';
+let adOobject = {};
+let vastTracker = '';
+
+adOobject.wasStarted = false;
+adOobject.wasCompleted = false;
+
+// for test
+let amf = '';
 
 let createPromise = (urlVast, video) => {
     return new Promise(function (resolve, rejected) {
         DMVAST.client.get(urlVast, function (r, e) {
+
+            // for test
+            amf = r;
+            console.log(amf);
+
             adMediaFile = r.ads[0].creatives[0].mediaFiles[0].fileURL;
-            adSkipDelay = r.ads[0].creatives[0].skipDelay;
+            adOobject.skipDelay = r.ads[0].creatives[0].skipDelay;
+            adOobject.clickLink = r.ads[0].creatives[0].videoClickThroughURLTemplate;
+
+            vastTracker = new DMVAST.tracker(r.ads[0], r.ads[0].creatives[0]);
+            console.log(vastTracker);
+
+            const currentDate = () => {
+                let d = new Date();
+                return "(" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ") ";
+            };
+
+            vastTracker.on('start', () => {
+                console.log(currentDate() + " Ad event: start");
+            });
+            vastTracker.on('skip', () => {
+                console.log(currentDate() + " Ad event: skip");
+            });
+            vastTracker.on('pause', () => {
+                console.log(currentDate() + " Ad event: pause");
+            });
+            vastTracker.on('resume', () => {
+                console.log(currentDate() + " Ad event: resume");
+            });
+            vastTracker.on('resume', () => {
+                console.log(currentDate() + " Ad event: complete");
+            });
+
             playlist = [
                 {
                     source: adMediaFile,
@@ -72,16 +110,20 @@ class adPlugin {
     }
 
     playerEvents(plr, plst) {
-        console.log('player events called');
         plr.on(Clappr.Events.PLAYER_ENDED, function () {
             if (plst.length > 0) {
-                console.log('pew skip');
+                vastTracker.complete();
+                adOobject.wasCompleted = true;
                 adPlugin.skipAd(plr, plst);
             }
         });
 
         plr.on(Clappr.Events.PLAYER_PLAY, function () {
             plr.core.mediaControl.container.settings.seekEnabled = plst.length <= 0;
+            if (plr.getCurrentTime() <= 1) {
+                vastTracker.setProgress(1);
+                adOobject.wasStarted = true;
+            }
         });
     }
 
@@ -95,7 +137,7 @@ class adPlugin {
                 self.ab.textContent = 'Skip Ad';
                 console.log('time to skip ad!');
             }
-        }, 1000);
+        }, 300);
     }
 
     adSkipButtonEvent() {
@@ -112,6 +154,9 @@ class adPlugin {
         p.load(playlistItem.source, '', true);
         var ab = document.getElementById('adButton');
         ab.parentNode.removeChild(ab);
+        if (!adOobject.wasCompleted) {
+            vastTracker.skip();
+        }
     }
 }
 
@@ -125,16 +170,24 @@ var adButton = Clappr.UIContainerPlugin.extend({
         // this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.show);
         this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToAdVideo);
         this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.destroyAdPlugin);
+        this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
+    },
+
+    containerPause: function () {
+        vastTracker.setPaused(true);
     },
 
     destroyAdPlugin: function () {
+        if (adOobject.wasStarted && !adOobject.wasCompleted) {
+            vastTracker.setPaused(false);
+        }
         if (!adVideoPlayNow) {
             this.destroy();
         }
     },
 
     clickToAdVideo: function () {
-        window.open('https://rick.amigocraft.net/', '_blank').focus();
+        window.open(adOobject.clickLink).focus();
     },
 
     show: function show() {
