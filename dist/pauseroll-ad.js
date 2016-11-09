@@ -1,0 +1,347 @@
+'use strict';
+
+var adVideoPlayNow = false;
+var p = '';
+var playlist = [];
+var adObject = {};
+var vastTracker = '';
+
+adObject.wasStarted = false;
+adObject.adMediaFile = '';
+adObject.wasCompleted = false;
+adObject.setTypeAd = function (type) {
+    adObject.typeAd = type;
+    if (adObject.typeAd == 'pauseroll') {
+        console.log('pau');
+    } else if (adObject.typeAd == 'preroll') {
+        console.log('pre');
+    }
+};
+
+// for containerEnded
+var amf = '';
+
+var getPrimeSource = function getPrimeSource() {
+    if (adObject.typeAd == 'pauseroll') {
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+            for (var _iterator = playlist[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var z = _step.value;
+
+                if (!z.ad) {
+                    return z.source;
+                }
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                    _iterator.return();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
+            }
+        }
+    } else {
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
+
+        try {
+            for (var _iterator2 = playlist[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                var _z = _step2.value;
+
+                if (_z.ad) {
+                    return _z.source;
+                }
+            }
+        } catch (err) {
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                    _iterator2.return();
+                }
+            } finally {
+                if (_didIteratorError2) {
+                    throw _iteratorError2;
+                }
+            }
+        }
+    }
+};
+
+var getAdSource = function getAdSource() {
+    if (adObject.typeAd == 'pauseroll') {
+        var _iteratorNormalCompletion3 = true;
+        var _didIteratorError3 = false;
+        var _iteratorError3 = undefined;
+
+        try {
+            for (var _iterator3 = playlist[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                var z = _step3.value;
+
+                if (z.ad) {
+                    return z.source;
+                }
+            }
+        } catch (err) {
+            _didIteratorError3 = true;
+            _iteratorError3 = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                    _iterator3.return();
+                }
+            } finally {
+                if (_didIteratorError3) {
+                    throw _iteratorError3;
+                }
+            }
+        }
+    } else {
+        var _iteratorNormalCompletion4 = true;
+        var _didIteratorError4 = false;
+        var _iteratorError4 = undefined;
+
+        try {
+            for (var _iterator4 = playlist[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                var _z2 = _step4.value;
+
+                if (!_z2.ad) {
+                    return _z2.source;
+                }
+            }
+        } catch (err) {
+            _didIteratorError4 = true;
+            _iteratorError4 = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                    _iterator4.return();
+                }
+            } finally {
+                if (_didIteratorError4) {
+                    throw _iteratorError4;
+                }
+            }
+        }
+    }
+};
+
+var loadVAST = function loadVAST(urlVast, video) {
+    return new Promise(function (resolve, rejected) {
+        DMVAST.client.get(urlVast, function (r, e) {
+
+            // for containerEnded
+            amf = r;
+            console.log(amf);
+
+            adObject.adMediaFile = r.ads[0].creatives[0].mediaFiles[0].fileURL;
+            adObject.skipDelay = r.ads[0].creatives[0].skipDelay;
+            adObject.clickLink = r.ads[0].creatives[0].videoClickThroughURLTemplate;
+
+            vastTracker = new DMVAST.tracker(r.ads[0], r.ads[0].creatives[0]);
+            console.log(vastTracker);
+
+            var currentDate = function currentDate() {
+                var d = new Date();
+                return "(" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ") ";
+            };
+
+            vastTracker.on('start', function () {
+                console.log(currentDate() + " Ad event: start");
+            });
+            vastTracker.on('skip', function () {
+                console.log(currentDate() + " Ad event: skip");
+            });
+            vastTracker.on('pause', function () {
+                console.log(currentDate() + " Ad event: pause");
+            });
+            vastTracker.on('resume', function () {
+                console.log(currentDate() + " Ad event: resume");
+            });
+            vastTracker.on('resume', function () {
+                console.log(currentDate() + " Ad event: complete");
+            });
+
+            playlist = [{
+                source: adObject.adMediaFile,
+                ad: true
+            }, {
+                source: video,
+                ad: false
+            }];
+            resolve();
+        });
+    });
+};
+
+// main visibility API function
+// use visibility API to check if current tab is active or not
+var _visibilityAPI = function () {
+    var stateKey,
+        eventKey,
+        keys = {
+        hidden: "visibilitychange",
+        webkitHidden: "webkitvisibilitychange",
+        mozHidden: "mozvisibilitychange",
+        msHidden: "msvisibilitychange"
+    };
+    for (stateKey in keys) {
+        if (stateKey in document) {
+            eventKey = keys[stateKey];
+            break;
+        }
+    }
+    return {
+        'setHandler': function setHandler(c) {
+            if (c) document.addEventListener(eventKey, c);
+        },
+        'tabVisible': function tabVisible() {
+            return !document[stateKey];
+        }
+    };
+}();
+
+_visibilityAPI.setHandler(function () {
+    if (p.options.source == adObject.adMediaFile) {
+        if (_visibilityAPI.tabVisible()) {
+            setTimeout(function () {
+                p.play();
+            }, 300);
+        } else {
+            p.pause();
+        }
+    }
+});
+
+// class adPlugin {
+//     constructor(skipoffset, plst, plr) {
+//         this.adButtonTimer(skipoffset);
+//         this.playlist = plst;
+//         this.player = plr;
+//         this.ab = document.getElementById('adButton');
+//         this.playerEvents(this.player, this.playlist);
+//     }
+//
+//     playerEvents(plr, plst) {
+//         plr.on(Clappr.Events.PLAYER_ENDED, function () {
+//             if (plst.length > 0) {
+//                 vastTracker.complete();
+//                 adObject.wasCompleted = true;
+//                 adPlugin.skipAd(plr, plst);
+//             }
+//         });
+//
+//         plr.on(Clappr.Events.PLAYER_PLAY, function () {
+//             plr.core.mediaControl.container.settings.seekEnabled = plst.length <= 0;
+//             if (plr.getCurrentTime() <= 1) {
+//                 vastTracker.setProgress(1);
+//                 adObject.wasStarted = true;
+//             }
+//         });
+//     }
+//
+//     adButtonTimer(s) {
+//         let self = this;
+//         var timerId = setInterval(function () {
+//             self.ab.textContent = 'You can skip this ad in ' + parseInt(s - plr.getCurrentTime());
+//             if (plr.getCurrentTime() > s) {
+//                 clearInterval(timerId);
+//                 self.adSkipButtonEvent();
+//                 self.ab.textContent = 'Skip Ad';
+//                 console.log('time to skip ad!');
+//             }
+//         }, 300);
+//     }
+//
+//     adSkipButtonEvent() {
+//         var self = this;
+//         this.ab.onclick = () => {
+//             console.log('ab onclick');
+//             adPlugin.skipAd(self.player, self.playlist);
+//         };
+//     }
+//
+//     static skipAd(p, playlist) {
+//         var playlistItem = playlist.shift();
+//         adVideoPlayNow = playlistItem.ad;
+//         p.load(playlistItem.source, '', true);
+//         var ab = document.getElementById('adButton');
+//         ab.parentNode.removeChild(ab);
+//         if (!adObject.wasCompleted) {
+//             vastTracker.skip();
+//         }
+//     }
+// }
+
+var adButton = Clappr.UIContainerPlugin.extend({
+    name: 'ad_button',
+    initialize: function initialize() {
+        this.render();
+    },
+
+    bindEvents: function bindEvents() {
+        // this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.show);
+        // this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToAdVideo);
+        // this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.destroyAdPlugin);
+        this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
+        this.listenTo(this.container, Clappr.Events.CONTAINER_ENDED, this.containerEnded);
+    },
+
+    containerEnded: function containerEnded() {
+        p.load(getPrimeSource());
+        adVideoPlayNow = false;
+    },
+
+    containerPause: function containerPause() {
+        // vastTracker.setPaused(true);
+        if (!adVideoPlayNow) {
+            p.load(getAdSource());
+            adVideoPlayNow = true;
+        }
+        console.log('container pause called');
+    },
+
+    destroyAdPlugin: function destroyAdPlugin() {
+        if (adObject.wasStarted && !adObject.wasCompleted) {
+            vastTracker.setPaused(false);
+        }
+        if (!adVideoPlayNow) {
+            this.destroy();
+        }
+    },
+
+    clickToAdVideo: function clickToAdVideo() {
+        window.open(adObject.clickLink).focus();
+    },
+
+    show: function show() {
+        this.$el.show();
+    },
+
+    render: function render() {
+        // this.$el.css('font-size', '20px');
+        // this.$el.css('position', 'absolute');
+        // this.$el.css('color', 'white');
+        // this.$el.css('top', '70%');
+        // this.$el.css('right', '0%');
+        // this.$el.css('background-color', 'black');
+        // this.$el.css('z-index', '100500');
+        // this.$el.css('border', 'solid 3px #333333');
+        // this.$el.css('padding', '5px');
+        // this.container.$el.append(this.$el);
+        // this.$el[0].id = 'adButton';
+        this.show();
+        return this;
+    }
+});

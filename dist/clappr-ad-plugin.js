@@ -8,26 +8,36 @@ var adVideoPlayNow = '';
 var p = '';
 var adMediaFile = '';
 var playlist = [];
-var adOobject = {};
+var adObject = {};
 var vastTracker = '';
 
-adOobject.wasStarted = false;
-adOobject.wasCompleted = false;
+adObject.wasStarted = false;
+adObject.wasCompleted = false;
+adObject.setTypeAd = function (type) {
+    adObject.typeAd = type;
+    if (adObject.typeAd == 'pauseroll') {
+        console.log('mid');
+    } else if (adObject.typeAd == 'preroll') {
+        console.log('pre');
+    }
+};
 
-// for test
+// for containerEnded
 var amf = '';
+
+var generatePlaylist = function generatePlaylist(urlVast, video) {};
 
 var createPromise = function createPromise(urlVast, video) {
     return new Promise(function (resolve, rejected) {
         DMVAST.client.get(urlVast, function (r, e) {
 
-            // for test
+            // for containerEnded
             amf = r;
             console.log(amf);
 
             adMediaFile = r.ads[0].creatives[0].mediaFiles[0].fileURL;
-            adOobject.skipDelay = r.ads[0].creatives[0].skipDelay;
-            adOobject.clickLink = r.ads[0].creatives[0].videoClickThroughURLTemplate;
+            adObject.skipDelay = r.ads[0].creatives[0].skipDelay;
+            adObject.clickLink = r.ads[0].creatives[0].videoClickThroughURLTemplate;
 
             vastTracker = new DMVAST.tracker(r.ads[0], r.ads[0].creatives[0]);
             console.log(vastTracker);
@@ -121,7 +131,7 @@ var adPlugin = function () {
             plr.on(Clappr.Events.PLAYER_ENDED, function () {
                 if (plst.length > 0) {
                     vastTracker.complete();
-                    adOobject.wasCompleted = true;
+                    adObject.wasCompleted = true;
                     adPlugin.skipAd(plr, plst);
                 }
             });
@@ -130,7 +140,7 @@ var adPlugin = function () {
                 plr.core.mediaControl.container.settings.seekEnabled = plst.length <= 0;
                 if (plr.getCurrentTime() <= 1) {
                     vastTracker.setProgress(1);
-                    adOobject.wasStarted = true;
+                    adObject.wasStarted = true;
                 }
             });
         }
@@ -139,7 +149,7 @@ var adPlugin = function () {
         value: function adButtonTimer(s) {
             var self = this;
             var timerId = setInterval(function () {
-                self.ab.textContent = 'You can skip this ad in ' + parseInt(s - plr.getCurrentTime() + 1);
+                self.ab.textContent = 'You can skip this ad in ' + parseInt(s - plr.getCurrentTime());
                 if (plr.getCurrentTime() > s) {
                     clearInterval(timerId);
                     self.adSkipButtonEvent();
@@ -165,7 +175,7 @@ var adPlugin = function () {
             p.load(playlistItem.source, '', true);
             var ab = document.getElementById('adButton');
             ab.parentNode.removeChild(ab);
-            if (!adOobject.wasCompleted) {
+            if (!adObject.wasCompleted) {
                 vastTracker.skip();
             }
         }
@@ -192,7 +202,7 @@ var adButton = Clappr.UIContainerPlugin.extend({
     },
 
     destroyAdPlugin: function destroyAdPlugin() {
-        if (adOobject.wasStarted && !adOobject.wasCompleted) {
+        if (adObject.wasStarted && !adObject.wasCompleted) {
             vastTracker.setPaused(false);
         }
         if (!adVideoPlayNow) {
@@ -201,7 +211,7 @@ var adButton = Clappr.UIContainerPlugin.extend({
     },
 
     clickToAdVideo: function clickToAdVideo() {
-        window.open(adOobject.clickLink).focus();
+        window.open(adObject.clickLink).focus();
     },
 
     show: function show() {

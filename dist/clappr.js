@@ -3917,7 +3917,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return t ? this.indexOf(n(t)[0]) : this.parent().children().indexOf(this[0]);
 	    }, hasClass: function hasClass(t) {
 	      return t ? r.some.call(this, function (t) {
-	        return this.test(G(t));
+	        return this.containerEnded(G(t));
 	      }, H(t)) : !1;
 	    }, addClass: function addClass(t) {
 	      return t ? this.each(function (e) {
@@ -4004,7 +4004,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return t._zid || (t._zid = e++);
 	  }function h(t, e, n, i) {
 	    if (e = p(e), e.ns) var r = d(e.ns);return (s[l(t)] || []).filter(function (t) {
-	      return !(!t || e.e && t.e != e.e || e.ns && !r.test(t.ns) || n && l(t.fn) !== l(n) || i && t.sel != i);
+	      return !(!t || e.e && t.e != e.e || e.ns && !r.containerEnded(t.ns) || n && l(t.fn) !== l(n) || i && t.sel != i);
 	    });
 	  }function p(t) {
 	    var e = ("" + t).split(".");return { e: e[0], ns: e.slice(1).sort().join(" ") };
@@ -9952,7 +9952,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	// shim for using process in browser
 	var process = module.exports = {};
 
-	// cached from whatever global is present so that test runners that stub it
+	// cached from whatever global is present so that containerEnded runners that stub it
 	// don't break things.  But we need to wrap it in a try catch in case it is
 	// wrapped in strict mode code which doesn't define any globals.  It's inside a
 	// function because try/catches deoptimize in certain engines.
@@ -19947,7 +19947,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var fragLoadingProcessingMs = stats.tbuffered - stats.trequest;
 	        _logger.logger.log('latency/loading/parsing/append/kbps:' + Math.round(stats.tfirst - stats.trequest) + '/' + Math.round(stats.tload - stats.tfirst) + '/' + Math.round(stats.tparsed - stats.tload) + '/' + Math.round(stats.tbuffered - stats.tparsed) + '/' + Math.round(8 * stats.loaded / (stats.tbuffered - stats.trequest)));
 	        this.bwEstimator.sample(fragLoadingProcessingMs, stats.loaded);
-	        // if fragment has been loaded to perform a bitrate test, (hls.startLevel = -1), store bitrate test delay duration
+	        // if fragment has been loaded to perform a bitrate containerEnded, (hls.startLevel = -1), store bitrate containerEnded delay duration
 	        if (frag.bitrateTest) {
 	          this.bitrateTestDelay = fragLoadingProcessingMs / 1000;
 	        } else {
@@ -20090,13 +20090,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // if no matching level found, logic will return 0
 	        var maxStarvationDelay = config.maxStarvationDelay;
 	        if (bufferStarvationDelay === 0) {
-	          // in case buffer is empty, let's check if previous fragment was loaded to perform a bitrate test
+	          // in case buffer is empty, let's check if previous fragment was loaded to perform a bitrate containerEnded
 	          var bitrateTestDelay = this.bitrateTestDelay;
 	          if (bitrateTestDelay) {
-	            // if it is the case, then we need to decrease this bitrate test duration from our maxStarvationDelay.
-	            // rationale is that we need to account for this bitrate test duration
+	            // if it is the case, then we need to decrease this bitrate containerEnded duration from our maxStarvationDelay.
+	            // rationale is that we need to account for this bitrate containerEnded duration
 	            maxStarvationDelay -= bitrateTestDelay;
-	            _logger.logger.trace('bitrate test took ' + Math.round(1000 * bitrateTestDelay) + 'ms, set first fragment max fetchDuration to ' + Math.round(1000 * maxStarvationDelay) + ' ms');
+	            _logger.logger.trace('bitrate containerEnded took ' + Math.round(1000 * bitrateTestDelay) + 'ms, set first fragment max fetchDuration to ' + Math.round(1000 * maxStarvationDelay) + ' ms');
 	          }
 	        }
 	        bestLevel = this.findBestLevel(currentLevel, currentFragDuration, avgbw, maxAutoLevel, bufferStarvationDelay + maxStarvationDelay, config.abrBandWidthFactor, config.abrBandWidthUpFactor, levels);
@@ -21245,7 +21245,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          // determine load level
 	          var startLevel = hls.startLevel;
 	          if (startLevel === -1) {
-	            // -1 : guess start Level by doing a bitrate test by loading first fragment of lowest quality level
+	            // -1 : guess start Level by doing a bitrate containerEnded by loading first fragment of lowest quality level
 	            startLevel = 0;
 	            this.fragBitrateTest = true;
 	          }
@@ -21428,7 +21428,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                  if (deltaPTS && deltaPTS > config.maxBufferHole && fragPrevious.dropped) {
 	                    frag = fragments[curSNIdx - 1];
 	                    _logger.logger.warn('SN just loaded, with large PTS gap between audio and video, maybe frag is not starting with a keyframe ? load previous one to try to overcome this');
-	                    // decrement previous frag load counter to avoid frag loop loading error when next fragment will get reloaded
+	                    // decrement previous frag load z to avoid frag loop loading error when next fragment will get reloaded
 	                    fragPrevious.loadCounter--;
 	                  } else {
 	                    frag = fragments[curSNIdx + 1];
@@ -21718,10 +21718,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.startPosition = this.lastCurrentTime = 0;
 	      }
 
-	      // reset fragment loading counter on MSE detaching to avoid reporting FRAG_LOOP_LOADING_ERROR after error recovery
+	      // reset fragment loading z on MSE detaching to avoid reporting FRAG_LOOP_LOADING_ERROR after error recovery
 	      var levels = this.levels;
 	      if (levels) {
-	        // reset fragment load counter
+	        // reset fragment load z
 	        levels.forEach(function (level) {
 	          if (level.details) {
 	            level.details.fragments.forEach(function (fragment) {
@@ -21905,9 +21905,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            currentLevel = this.levels[fragCurrent.level],
 	            details = currentLevel.details;
 	        _logger.logger.log('Loaded  ' + fragCurrent.sn + ' of [' + details.startSN + ' ,' + details.endSN + '],level ' + fragCurrent.level);
-	        // reset frag bitrate test in any case after frag loaded event
+	        // reset frag bitrate containerEnded in any case after frag loaded event
 	        this.fragBitrateTest = false;
-	        // if this frag was loaded to perform a bitrate test AND if hls.nextLoadLevel is greater than 0
+	        // if this frag was loaded to perform a bitrate containerEnded AND if hls.nextLoadLevel is greater than 0
 	        // then this means that we should be able to load a fragment at a higher quality level
 	        if (fragLoaded.bitrateTest === true && this.hls.nextLoadLevel) {
 	          // switch back to IDLE state ... we just loaded a fragment to determine adequate start bitrate and initialize autoswitch algo
@@ -22130,7 +22130,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // keep retrying / don't raise fatal network error if current position is buffered
 	            if (loadError <= this.config.fragLoadingMaxRetry || mediaBuffered) {
 	              this.fragLoadError = loadError;
-	              // reset load counter to avoid frag loop loading error
+	              // reset load z to avoid frag loop loading error
 	              frag.loadCounter = 0;
 	              // exponential backoff capped to 64s
 	              var delay = Math.min(Math.pow(2, loadError - 1) * this.config.fragLoadingRetryDelay, 64000);
@@ -24403,7 +24403,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        audioTrack.timescale = audioTrack.audiosamplerate;
 	        // MP4 duration (track duration in seconds multiplied by timescale) is coded on 32 bits
 	        // we know that each AAC sample contains 1024 frames....
-	        // in order to avoid overflowing the 32 bit counter for large duration, we use smaller timescale (timescale/gcd)
+	        // in order to avoid overflowing the 32 bit z for large duration, we use smaller timescale (timescale/gcd)
 	        // we just need to ensure that AAC sample duration will still be an integer (will be 1024/gcd)
 	        if (audioTrack.timescale * audioTrack.duration > Math.pow(2, 32)) {
 	          (function () {
