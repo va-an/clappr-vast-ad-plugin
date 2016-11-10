@@ -3,52 +3,57 @@ let p = '';
 let playlist = [];
 let adObject = {};
 let vastTracker = '';
+let vct = '';
+let typeVideo = '';
 
 adObject.wasStarted = false;
 adObject.adMediaFile = '';
 adObject.wasCompleted = false;
-adObject.setTypeAd = (type) => {
+
+const setTypeAd = (type) => {
     adObject.typeAd = type;
-    if (adObject.typeAd == 'pauseroll') {
-        console.log('pau');
-    } else if (adObject.typeAd == 'preroll') {
-        console.log('pre');
-    }
+    // if (adObject.typeAd == 'pauseroll') {
+    //     console.log('pau');
+    // } else if (adObject.typeAd == 'preroll') {
+    //     console.log('pre');
+    // }
 };
 
+const setVideoType = (type) => {
+    typeVideo = type;
+};
 
 // for containerEnded
 let amf = '';
 
-let getPrimeSource = () => {
+const getVideo = () => {
     if (adObject.typeAd == 'pauseroll') {
         for (let z of playlist) {
             if (!z.ad) {
-                return z.source;
-            }
-        }
-    } else {
-        for (let z of playlist) {
-            if (z.ad) {
-                return z.source;
+                return z;
             }
         }
     }
 };
 
-let getAdSource = () => {
+const getAd = () => {
     if (adObject.typeAd == 'pauseroll') {
         for (let z of playlist) {
             if (z.ad) {
-                return z.source;
+                return z;
             }
         }
-    } else {
-        for (let z of playlist) {
-            if (!z.ad) {
-                return z.source;
-            }
-        }
+    }
+};
+
+const initPlayerForAd = () => {
+    p.load(getAd().source);
+};
+
+const initPlayerForVideo = () => {
+    p.load(getVideo().source);
+    if (getVideo().typeVideo == 'vod') {
+        p.seek(vct);
     }
 };
 
@@ -58,14 +63,14 @@ let loadVAST = (urlVast, video) => {
 
             // for containerEnded
             amf = r;
-            console.log(amf);
+            // console.log(amf);
 
             adObject.adMediaFile = r.ads[0].creatives[0].mediaFiles[0].fileURL;
             adObject.skipDelay = r.ads[0].creatives[0].skipDelay;
             adObject.clickLink = r.ads[0].creatives[0].videoClickThroughURLTemplate;
 
             vastTracker = new DMVAST.tracker(r.ads[0], r.ads[0].creatives[0]);
-            console.log(vastTracker);
+            // console.log(vastTracker);
 
             const currentDate = () => {
                 let d = new Date();
@@ -95,7 +100,8 @@ let loadVAST = (urlVast, video) => {
                 },
                 {
                     source: video,
-                    ad: false
+                    ad: false,
+                    typeVideo: typeVideo
                 }
             ];
             resolve();
@@ -209,25 +215,48 @@ var adButton = Clappr.UIContainerPlugin.extend({
     },
 
     bindEvents: function bindEvents() {
-        // this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.show);
-        // this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToAdVideo);
-        // this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.destroyAdPlugin);
-        this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
-        this.listenTo(this.container, Clappr.Events.CONTAINER_ENDED, this.containerEnded);
+        if (adObject.typeAd == 'pauseroll') {
+            // this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.show);
+            // this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToAdVideo);
+            // this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.destroyAdPlugin);
+            this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.containerPlay);
+            this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
+            this.listenTo(this.container, Clappr.Events.CONTAINER_ENDED, this.containerEnded);
+            // this.listenTo(this.container, Clappr.Events.CONTAINER_READY, this.containerReady);
+        } else if (adObject.typeAd == 'preroll') {
+            // TODO think about this 'if else'
+        }
     },
-    
+
+    // containerReady: function () {
+    // adVideoPlayNow = p.options.sourses[0] != getVideo().source;
+    // console.log(p);
+    // },
+
+    containerPlay: function () {
+        p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
+        adVideoPlayNow = p.options.sources[0] != getVideo().source;
+        if (adVideoPlayNow) {
+            this.show();
+        } else {
+            this.hide();
+        }
+    },
+
     containerEnded: function () {
-        p.load(getPrimeSource());
-        adVideoPlayNow = false;
+        console.log('container ended');
+        initPlayerForVideo();
     },
 
     containerPause: function () {
         // vastTracker.setPaused(true);
         if (!adVideoPlayNow) {
-            p.load(getAdSource());
-            adVideoPlayNow = true;
+            // this.show();
+            if (getVideo().typeVideo == 'vod') {
+                vct = p.getCurrentTime();
+            }
+            initPlayerForAd();
         }
-        console.log('container pause called');
     },
 
     destroyAdPlugin: function () {
@@ -243,23 +272,50 @@ var adButton = Clappr.UIContainerPlugin.extend({
         window.open(adObject.clickLink).focus();
     },
 
-    show: function show() {
+    show: function () {
         this.$el.show();
+        let timerId = setInterval(function () {
+            let ab = document.getElementById('adButton');
+            ab.textContent = 'You can skip this ad in ' + parseInt(adObject.skipDelay - p.getCurrentTime());
+            if (p.getCurrentTime() > adObject.skipDelay) {
+                clearInterval(timerId);
+                ab.onclick = () => {
+                    initPlayerForVideo();
+                    console.log('ab onclick');
+                };
+                ab.textContent = 'Skip Ad';
+                console.log('time to skip ad!');
+            }
+        }, 300);
+        // console.log('show called');
+    },
+
+    hide: function () {
+        this.$el.hide();
+        // console.log('hide called');
     },
 
     render: function render() {
-        // this.$el.css('font-size', '20px');
-        // this.$el.css('position', 'absolute');
-        // this.$el.css('color', 'white');
-        // this.$el.css('top', '70%');
-        // this.$el.css('right', '0%');
-        // this.$el.css('background-color', 'black');
-        // this.$el.css('z-index', '100500');
-        // this.$el.css('border', 'solid 3px #333333');
-        // this.$el.css('padding', '5px');
-        // this.container.$el.append(this.$el);
-        // this.$el[0].id = 'adButton';
-        this.show();
+        // console.log('render called');
+        this.$el.css('font-size', '20px');
+        this.$el.css('position', 'absolute');
+        this.$el.css('color', 'white');
+        this.$el.css('top', '70%');
+        this.$el.css('right', '0%');
+        this.$el.css('background-color', 'black');
+        this.$el.css('z-index', '100500');
+        this.$el.css('border', 'solid 3px #333333');
+        this.$el.css('padding', '5px');
+        // this.$el.html('pew pew pew');
+        this.container.$el.append(this.$el);
+        this.$el[0].id = 'adButton';
+        if (adVideoPlayNow) {
+            // console.log('render - show');
+            this.show();
+        } else {
+            this.hide();
+            // console.log('render - hide');
+        }
         return this;
     }
 });

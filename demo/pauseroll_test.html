@@ -12,28 +12,33 @@
 <body>
 <div id="player"></div>
 <script>
-//        var vastUrl = 'https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml';
-    adObject.setTypeAd('preroll');
-    adObject.setTypeAd('pauseroll');
+    //        var vastUrl = 'https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml';
+    //    adObject.setTypeAd('preroll');
     var vastUrl = 'https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-full-sample.xml';
     var mainVideo = 'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4';
+//    var mainVideo = 'http://hlscors.cdntest.cdnvideo.ru/cdntest-dvr/bunny_loop.sdp/playlist.m3u8';
+    setVideoType('vod');
+    setTypeAd('pauseroll');
 
     loadVAST(vastUrl, mainVideo).then(function () {
-        p = new Clappr.Player({
-            source: getPrimeSource(),
-            height: 360,
-            width: 640,
-            hideMediaControl: false,
-            parentId: "#player",
-            autoPlay: true,
-            exitFullscreenOnEnd: false,
-            plugins: [adButton],
-        });
+                p = new Clappr.Player({
+                    source: getVideo().source,
+                    height: 360,
+                    width: 640,
+                    hideMediaControl: false,
+                    parentId: "#player",
+                    autoPlay: true,
+                    exitFullscreenOnEnd: false,
+                    plugins: [adButton],
+                });
 //        new adPlugin(adObject.skipDelay, playlist, plr = p);
 
-    }, function () {
-        console.log('error promise');
-    });
+
+            },
+            function () {
+                console.log('error promise');
+            }
+    );
 </script>
 </body>
 </html>

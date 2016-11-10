@@ -14,10 +14,9 @@
 <script>
     //    var vastUrl = 'https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml';
     adObject.setTypeAd('preroll');
-//    adObject.setTypeAd('midroll');
+    //    adObject.setTypeAd('midroll');
     var vastUrl = 'https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-full-sample.xml';
     var mainVideo = 'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4';
-
 
 
     createPromise(vastUrl, mainVideo).then(function () {
@@ -33,7 +32,7 @@
             autoPlay: true,
             exitFullscreenOnEnd: false,
 //            mute: true,
-            plugins: [adButton],
+            plugins: [adButton]
         });
 
         new adPlugin(adObject.skipDelay, playlist, plr = p);

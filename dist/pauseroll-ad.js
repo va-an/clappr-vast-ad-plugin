@@ -5,23 +5,30 @@ var p = '';
 var playlist = [];
 var adObject = {};
 var vastTracker = '';
+var vct = '';
+var typeVideo = '';
 
 adObject.wasStarted = false;
 adObject.adMediaFile = '';
 adObject.wasCompleted = false;
-adObject.setTypeAd = function (type) {
+
+var setTypeAd = function setTypeAd(type) {
     adObject.typeAd = type;
-    if (adObject.typeAd == 'pauseroll') {
-        console.log('pau');
-    } else if (adObject.typeAd == 'preroll') {
-        console.log('pre');
-    }
+    // if (adObject.typeAd == 'pauseroll') {
+    //     console.log('pau');
+    // } else if (adObject.typeAd == 'preroll') {
+    //     console.log('pre');
+    // }
+};
+
+var setVideoType = function setVideoType(type) {
+    typeVideo = type;
 };
 
 // for containerEnded
 var amf = '';
 
-var getPrimeSource = function getPrimeSource() {
+var getVideo = function getVideo() {
     if (adObject.typeAd == 'pauseroll') {
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
@@ -32,7 +39,7 @@ var getPrimeSource = function getPrimeSource() {
                 var z = _step.value;
 
                 if (!z.ad) {
-                    return z.source;
+                    return z;
                 }
             }
         } catch (err) {
@@ -49,17 +56,21 @@ var getPrimeSource = function getPrimeSource() {
                 }
             }
         }
-    } else {
+    }
+};
+
+var getAd = function getAd() {
+    if (adObject.typeAd == 'pauseroll') {
         var _iteratorNormalCompletion2 = true;
         var _didIteratorError2 = false;
         var _iteratorError2 = undefined;
 
         try {
             for (var _iterator2 = playlist[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                var _z = _step2.value;
+                var z = _step2.value;
 
-                if (_z.ad) {
-                    return _z.source;
+                if (z.ad) {
+                    return z;
                 }
             }
         } catch (err) {
@@ -79,61 +90,14 @@ var getPrimeSource = function getPrimeSource() {
     }
 };
 
-var getAdSource = function getAdSource() {
-    if (adObject.typeAd == 'pauseroll') {
-        var _iteratorNormalCompletion3 = true;
-        var _didIteratorError3 = false;
-        var _iteratorError3 = undefined;
+var initPlayerForAd = function initPlayerForAd() {
+    p.load(getAd().source);
+};
 
-        try {
-            for (var _iterator3 = playlist[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                var z = _step3.value;
-
-                if (z.ad) {
-                    return z.source;
-                }
-            }
-        } catch (err) {
-            _didIteratorError3 = true;
-            _iteratorError3 = err;
-        } finally {
-            try {
-                if (!_iteratorNormalCompletion3 && _iterator3.return) {
-                    _iterator3.return();
-                }
-            } finally {
-                if (_didIteratorError3) {
-                    throw _iteratorError3;
-                }
-            }
-        }
-    } else {
-        var _iteratorNormalCompletion4 = true;
-        var _didIteratorError4 = false;
-        var _iteratorError4 = undefined;
-
-        try {
-            for (var _iterator4 = playlist[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-                var _z2 = _step4.value;
-
-                if (!_z2.ad) {
-                    return _z2.source;
-                }
-            }
-        } catch (err) {
-            _didIteratorError4 = true;
-            _iteratorError4 = err;
-        } finally {
-            try {
-                if (!_iteratorNormalCompletion4 && _iterator4.return) {
-                    _iterator4.return();
-                }
-            } finally {
-                if (_didIteratorError4) {
-                    throw _iteratorError4;
-                }
-            }
-        }
+var initPlayerForVideo = function initPlayerForVideo() {
+    p.load(getVideo().source);
+    if (getVideo().typeVideo == 'vod') {
+        p.seek(vct);
     }
 };
 
@@ -143,14 +107,14 @@ var loadVAST = function loadVAST(urlVast, video) {
 
             // for containerEnded
             amf = r;
-            console.log(amf);
+            // console.log(amf);
 
             adObject.adMediaFile = r.ads[0].creatives[0].mediaFiles[0].fileURL;
             adObject.skipDelay = r.ads[0].creatives[0].skipDelay;
             adObject.clickLink = r.ads[0].creatives[0].videoClickThroughURLTemplate;
 
             vastTracker = new DMVAST.tracker(r.ads[0], r.ads[0].creatives[0]);
-            console.log(vastTracker);
+            // console.log(vastTracker);
 
             var currentDate = function currentDate() {
                 var d = new Date();
@@ -178,7 +142,8 @@ var loadVAST = function loadVAST(urlVast, video) {
                 ad: true
             }, {
                 source: video,
-                ad: false
+                ad: false,
+                typeVideo: typeVideo
             }];
             resolve();
         });
@@ -291,25 +256,48 @@ var adButton = Clappr.UIContainerPlugin.extend({
     },
 
     bindEvents: function bindEvents() {
-        // this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.show);
-        // this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToAdVideo);
-        // this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.destroyAdPlugin);
-        this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
-        this.listenTo(this.container, Clappr.Events.CONTAINER_ENDED, this.containerEnded);
+        if (adObject.typeAd == 'pauseroll') {
+            // this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.show);
+            // this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToAdVideo);
+            // this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.destroyAdPlugin);
+            this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.containerPlay);
+            this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
+            this.listenTo(this.container, Clappr.Events.CONTAINER_ENDED, this.containerEnded);
+            // this.listenTo(this.container, Clappr.Events.CONTAINER_READY, this.containerReady);
+        } else if (adObject.typeAd == 'preroll') {
+            // TODO think about this 'if else'
+        }
+    },
+
+    // containerReady: function () {
+    // adVideoPlayNow = p.options.sourses[0] != getVideo().source;
+    // console.log(p);
+    // },
+
+    containerPlay: function containerPlay() {
+        p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
+        adVideoPlayNow = p.options.sources[0] != getVideo().source;
+        if (adVideoPlayNow) {
+            this.show();
+        } else {
+            this.hide();
+        }
     },
 
     containerEnded: function containerEnded() {
-        p.load(getPrimeSource());
-        adVideoPlayNow = false;
+        console.log('container ended');
+        initPlayerForVideo();
     },
 
     containerPause: function containerPause() {
         // vastTracker.setPaused(true);
         if (!adVideoPlayNow) {
-            p.load(getAdSource());
-            adVideoPlayNow = true;
+            // this.show();
+            if (getVideo().typeVideo == 'vod') {
+                vct = p.getCurrentTime();
+            }
+            initPlayerForAd();
         }
-        console.log('container pause called');
     },
 
     destroyAdPlugin: function destroyAdPlugin() {
@@ -327,21 +315,48 @@ var adButton = Clappr.UIContainerPlugin.extend({
 
     show: function show() {
         this.$el.show();
+        var timerId = setInterval(function () {
+            var ab = document.getElementById('adButton');
+            ab.textContent = 'You can skip this ad in ' + parseInt(adObject.skipDelay - p.getCurrentTime());
+            if (p.getCurrentTime() > adObject.skipDelay) {
+                clearInterval(timerId);
+                ab.onclick = function () {
+                    initPlayerForVideo();
+                    console.log('ab onclick');
+                };
+                ab.textContent = 'Skip Ad';
+                console.log('time to skip ad!');
+            }
+        }, 300);
+        // console.log('show called');
+    },
+
+    hide: function hide() {
+        this.$el.hide();
+        // console.log('hide called');
     },
 
     render: function render() {
-        // this.$el.css('font-size', '20px');
-        // this.$el.css('position', 'absolute');
-        // this.$el.css('color', 'white');
-        // this.$el.css('top', '70%');
-        // this.$el.css('right', '0%');
-        // this.$el.css('background-color', 'black');
-        // this.$el.css('z-index', '100500');
-        // this.$el.css('border', 'solid 3px #333333');
-        // this.$el.css('padding', '5px');
-        // this.container.$el.append(this.$el);
-        // this.$el[0].id = 'adButton';
-        this.show();
+        // console.log('render called');
+        this.$el.css('font-size', '20px');
+        this.$el.css('position', 'absolute');
+        this.$el.css('color', 'white');
+        this.$el.css('top', '70%');
+        this.$el.css('right', '0%');
+        this.$el.css('background-color', 'black');
+        this.$el.css('z-index', '100500');
+        this.$el.css('border', 'solid 3px #333333');
+        this.$el.css('padding', '5px');
+        // this.$el.html('pew pew pew');
+        this.container.$el.append(this.$el);
+        this.$el[0].id = 'adButton';
+        if (adVideoPlayNow) {
+            // console.log('render - show');
+            this.show();
+        } else {
+            this.hide();
+            // console.log('render - hide');
+        }
         return this;
     }
 });
