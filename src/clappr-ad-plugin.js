@@ -182,7 +182,7 @@ var adButton = Clappr.UIContainerPlugin.extend({
 
     bindEvents: function bindEvents() {
         // this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.show);
-        this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToAdVideo);
+        this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToContainer);
         this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.destroyAdPlugin);
         this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
     },
@@ -200,7 +200,7 @@ var adButton = Clappr.UIContainerPlugin.extend({
         }
     },
 
-    clickToAdVideo: function () {
+    clickToContainer: function () {
         window.open(adObject.clickLink).focus();
     },
 

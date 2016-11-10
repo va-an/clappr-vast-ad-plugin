@@ -1,5 +1,5 @@
 # clappr-ad-plugin
-Plugin for Clappr for playing advertisements by VAST (preroll only now).
+Plugin for Clappr for playing advertisements by VAST (preroll only now, pauseroll in progress).
 
 # About
 This work was started independently from https://github.com/kslimani/clappr-html5-preroll-skeleton-plugin repo and maybe repeat main things from there.
@@ -7,7 +7,8 @@ This work was started independently from https://github.com/kslimani/clappr-html
 At the moment I haven't time make code beautiful, It just works. (Yep, I know what code is awful). I definitely make all how need, but not right now.
 
 # Demo
-http://d11.cdnvideo.ru/videojs/clappr/clappr-ad-plugin/demo/demo_player.html
+* preroll - http://d11.cdnvideo.ru/videojs/clappr/clappr-ad-plugin/demo/demo_player.html
+* pauseroll - very soon. 
 
 If it dont't work - let me know.
 

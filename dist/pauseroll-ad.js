@@ -7,6 +7,7 @@ var adObject = {};
 var vastTracker = '';
 var vct = '';
 var typeVideo = '';
+var firstStart = true;
 
 adObject.wasStarted = false;
 adObject.adMediaFile = '';
@@ -178,7 +179,7 @@ var _visibilityAPI = function () {
 }();
 
 _visibilityAPI.setHandler(function () {
-    if (p.options.source == adObject.adMediaFile) {
+    if (adVideoPlayNow) {
         if (_visibilityAPI.tabVisible()) {
             setTimeout(function () {
                 p.play();
@@ -258,7 +259,7 @@ var adButton = Clappr.UIContainerPlugin.extend({
     bindEvents: function bindEvents() {
         if (adObject.typeAd == 'pauseroll') {
             // this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.show);
-            // this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToAdVideo);
+            this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToContainer);
             // this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.destroyAdPlugin);
             this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.containerPlay);
             this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
@@ -275,8 +276,16 @@ var adButton = Clappr.UIContainerPlugin.extend({
     // },
 
     containerPlay: function containerPlay() {
-        p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
+        console.log('play called');
+        if (!adVideoPlayNow && !firstStart) {
+            // this.show();
+            if (getVideo().typeVideo == 'vod') {
+                vct = p.getCurrentTime();
+            }
+            initPlayerForAd();
+        }
         adVideoPlayNow = p.options.sources[0] != getVideo().source;
+        p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
         if (adVideoPlayNow) {
             this.show();
         } else {
@@ -290,14 +299,15 @@ var adButton = Clappr.UIContainerPlugin.extend({
     },
 
     containerPause: function containerPause() {
+        firstStart = false;
         // vastTracker.setPaused(true);
-        if (!adVideoPlayNow) {
-            // this.show();
-            if (getVideo().typeVideo == 'vod') {
-                vct = p.getCurrentTime();
-            }
-            initPlayerForAd();
-        }
+        // if (!adVideoPlayNow) {
+        //     // this.show();
+        //     if (getVideo().typeVideo == 'vod') {
+        //         vct = p.getCurrentTime();
+        //     }
+        //     initPlayerForAd();
+        // }
     },
 
     destroyAdPlugin: function destroyAdPlugin() {
@@ -309,8 +319,12 @@ var adButton = Clappr.UIContainerPlugin.extend({
         }
     },
 
-    clickToAdVideo: function clickToAdVideo() {
-        window.open(adObject.clickLink).focus();
+    clickToContainer: function clickToContainer() {
+        if (adVideoPlayNow) {
+            window.open(adObject.clickLink).focus();
+        } else if (getVideo().typeVideo == 'live') {
+            p.pause();
+        }
     },
 
     show: function show() {
