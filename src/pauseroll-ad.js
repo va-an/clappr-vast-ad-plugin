@@ -6,6 +6,7 @@ let vastTracker = '';
 let vct = '';
 let typeVideo = '';
 let firstStart = true;
+let pauseNow = false;
 
 adObject.wasStarted = false;
 adObject.adMediaFile = '';
@@ -236,13 +237,13 @@ var adButton = Clappr.UIContainerPlugin.extend({
 
     containerPlay: function () {
         console.log('play called');
-        if (!adVideoPlayNow && !firstStart) {
-            // this.show();
+        if (!adVideoPlayNow && !firstStart && pauseNow) {
             if (getVideo().typeVideo == 'vod') {
                 vct = p.getCurrentTime();
             }
             initPlayerForAd();
         }
+        pauseNow = false;
         adVideoPlayNow = p.options.sources[0] != getVideo().source;
         p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
         if (adVideoPlayNow) {
@@ -253,12 +254,18 @@ var adButton = Clappr.UIContainerPlugin.extend({
     },
 
     containerEnded: function () {
-        console.log('container ended');
-        initPlayerForVideo();
+        // console.log('container ended');
+        if (!adVideoPlayNow) {
+            console.log('end');
+        } else {
+            initPlayerForVideo();
+        }
     },
 
     containerPause: function () {
+        console.log('pause called');
         firstStart = false;
+        pauseNow = true;
         // vastTracker.setPaused(true);
         // if (!adVideoPlayNow) {
         //     // this.show();
