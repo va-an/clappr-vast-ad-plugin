@@ -1,9 +1,15 @@
 'use strict';
 
-// TODO return main video when main video ends
-// TODO check wrongs params - typeAd
-// TODO preroll - adObject.typeAd == 'preroll'
-// TODO seekEnabled = false for preroll ad
+// preroll
+
+// pauseroll
+// TODO how detect - live or vod?
+// TODO live pauseroll?
+
+// common
+// TODO VAST events
+// TODO test VAST real examples
+// TODO move code in plugin by maximum
 
 var adVideoPlayNow = false;
 var p = '';
@@ -22,7 +28,6 @@ adObject.adMediaFile = '';
 adObject.wasCompleted = false;
 
 var setTypeAd = function setTypeAd(type) {
-    adObject.typeAd = type;
     if (type == 'preroll') {
         preroll = true;
         adVideoPlayNow = true;
@@ -30,13 +35,20 @@ var setTypeAd = function setTypeAd(type) {
         pauseroll = true;
         adVideoPlayNow = false;
     }
+
+    // for tests
+    // if (preroll) {
+    //     console.log('preroll');
+    // } else {
+    //     console.log('pauseroll');
+    // }
 };
 
 var setVideoType = function setVideoType(type) {
     typeVideo = type;
 };
 
-// for containerEnded
+// for tests
 var amf = '';
 
 var getVideo = function getVideo() {
@@ -94,21 +106,6 @@ var getAd = function getAd() {
                 throw _iteratorError2;
             }
         }
-    }
-};
-
-var initPlayerForAd = function initPlayerForAd() {
-    console.log('ipfa');
-    p.load(getAd().source);
-};
-
-var initPlayerForVideo = function initPlayerForVideo() {
-    console.log('ipfv');
-    adVideoPlayNow = false;
-    pauseNow = false;
-    p.load(getVideo().source);
-    if (getVideo().typeVideo == 'vod') {
-        p.seek(vct);
     }
 };
 
@@ -208,67 +205,7 @@ _visibilityAPI.setHandler(function () {
     }
 });
 
-// class adPlugin {
-//     constructor(skipoffset, plst, plr) {
-//         this.adButtonTimer(skipoffset);
-//         this.playlist = plst;
-//         this.player = plr;
-//         this.ab = document.getElementById('adButton');
-//         this.playerEvents(this.player, this.playlist);
-//     }
-//
-//     playerEvents(plr, plst) {
-//         plr.on(Clappr.Events.PLAYER_ENDED, function () {
-//             if (plst.length > 0) {
-//                 vastTracker.complete();
-//                 adObject.wasCompleted = true;
-//                 adPlugin.skipAd(plr, plst);
-//             }
-//         });
-//
-//         plr.on(Clappr.Events.PLAYER_PLAY, function () {
-//             plr.core.mediaControl.container.settings.seekEnabled = plst.length <= 0;
-//             if (plr.getCurrentTime() <= 1) {
-//                 vastTracker.setProgress(1);
-//                 adObject.wasStarted = true;
-//             }
-//         });
-//     }
-//
-//     adButtonTimer(s) {
-//         let self = this;
-//         var timerId = setInterval(function () {
-//             self.ab.textContent = 'You can skip this ad in ' + parseInt(s - plr.getCurrentTime());
-//             if (plr.getCurrentTime() > s) {
-//                 clearInterval(timerId);
-//                 self.adSkipButtonEvent();
-//                 self.ab.textContent = 'Skip Ad';
-//                 console.log('time to skip ad!');
-//             }
-//         }, 300);
-//     }
-//
-//     adSkipButtonEvent() {
-//         var self = this;
-//         this.ab.onclick = () => {
-//             console.log('ab onclick');
-//             adPlugin.skipAd(self.player, self.playlist);
-//         };
-//     }
-//
-//     static skipAd(p, playlist) {
-//         var playlistItem = playlist.shift();
-//         adVideoPlayNow = playlistItem.ad;
-//         p.load(playlistItem.source, '', true);
-//         var ab = document.getElementById('adButton');
-//         ab.parentNode.removeChild(ab);
-//         if (!adObject.wasCompleted) {
-//             vastTracker.skip();
-//         }
-//     }
-// }
-
-var adButton = Clappr.UIContainerPlugin.extend({
+var adPlugin = Clappr.UIContainerPlugin.extend({
     name: 'ad_plugin',
     initialize: function initialize() {
         this.render();
@@ -276,7 +213,7 @@ var adButton = Clappr.UIContainerPlugin.extend({
 
     bindEvents: function bindEvents() {
         // console.log('bind events - called');
-        this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToContainer);
+        this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.ContainerClick);
         this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.containerPlay);
         this.listenTo(this.container, Clappr.Events.CONTAINER_ENDED, this.containerEnded);
 
@@ -288,30 +225,38 @@ var adButton = Clappr.UIContainerPlugin.extend({
         }
     },
 
-    // containerReady: function () {
-    // adVideoPlayNow = p.options.sourses[0] != getVideo().source;
-    // console.log(p);
-    // },
+    initPlayerFor: function initPlayerFor(type) {
+        if (type == 'video') {
+            // console.log('ipfv in plugin');
+            adVideoPlayNow = false;
+            pauseNow = false;
+            p.load(getVideo().source);
+            if (getVideo().typeVideo == 'vod') {
+                p.seek(vct);
+            }
+        } else if (type == 'ad') {
+            // console.log('ipfa in plugin');
+            p.load(getAd().source);
+        }
+    },
 
     containerPlay: function containerPlay() {
+        p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
         if (preroll) {
             // if (adObject.wasStarted && !adObject.wasCompleted) {
             //     vastTracker.setPaused(false);
             // }
-            // if (!adVideoPlayNow) {
-            //     this.destroy();
-            // }
         } else if (pauseroll) {
             // console.log('play called');
-            if (!adVideoPlayNow && !firstStart && pauseNow) {
+
+            if (!adVideoPlayNow && !firstStart && pauseNow && p.getCurrentTime() != 0) {
                 if (getVideo().typeVideo == 'vod') {
                     vct = p.getCurrentTime();
                 }
-                initPlayerForAd();
+                this.initPlayerFor('ad');
             }
             pauseNow = false;
             adVideoPlayNow = p.options.sources[0] != getVideo().source;
-            p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
             if (adVideoPlayNow) {
                 this.show();
             } else {
@@ -321,19 +266,11 @@ var adButton = Clappr.UIContainerPlugin.extend({
     },
 
     containerEnded: function containerEnded() {
-        console.log('ce');
-        if (preroll) {
-            // console.log('preroll ended called');
-        } else if (pauseroll) {
-            console.log('pauseroll');
-            if (adVideoPlayNow) {
-                // console.log('end');
-                initPlayerForVideo();
-            } else {
-                // initPlayerForVideo();
-            }
+        // console.log('ce');
+        if (adVideoPlayNow) {
+            // console.log('end');
+            this.initPlayerFor('video');
         }
-        // console.log('container ended');
     },
 
     containerPause: function containerPause() {
@@ -341,18 +278,13 @@ var adButton = Clappr.UIContainerPlugin.extend({
         firstStart = false;
         pauseNow = true;
         // vastTracker.setPaused(true);
-        // if (!adVideoPlayNow) {
-        //     // this.show();
-        //     if (getVideo().typeVideo == 'vod') {
-        //         vct = p.getCurrentTime();
-        //     }
-        //     initPlayerForAd();
-        // }
     },
 
-    clickToContainer: function clickToContainer() {
+    ContainerClick: function ContainerClick() {
         if (preroll) {
-            window.open(adObject.clickLink).focus();
+            if (adVideoPlayNow) {
+                window.open(adObject.clickLink).focus();
+            }
         } else if (pauseroll) {
             if (adVideoPlayNow) {
                 window.open(adObject.clickLink).focus();
@@ -375,7 +307,7 @@ var adButton = Clappr.UIContainerPlugin.extend({
                     clearInterval(timerId);
                     ab.onclick = function () {
                         console.log('ab onclick');
-                        initPlayerForVideo();
+                        _this.initPlayerFor('video');
                     };
                     ab.textContent = 'Skip Ad';
                     // console.log('time to skip ad!');
@@ -385,39 +317,11 @@ var adButton = Clappr.UIContainerPlugin.extend({
         if (preroll) {
             if (adVideoPlayNow) {
                 showAdButton();
-                // this.$el.show();
-                // let timerId = setInterval(function () {
-                //     let ab = document.getElementById('adButton');
-                //     ab.textContent = 'You can skip this ad in ' + parseInt(adObject.skipDelay - p.getCurrentTime());
-                //     if (p.getCurrentTime() > adObject.skipDelay) {
-                //         clearInterval(timerId);
-                //         ab.onclick = () => {
-                //             initPlayerForVideo();
-                //             console.log('ab onclick');
-                //         };
-                //         ab.textContent = 'Skip Ad';
-                //         console.log('time to skip ad!');
-                //     }
-                // }, 300);
             } else {
                 this.hide();
             }
         } else if (pauseroll) {
             showAdButton();
-            // this.$el.show();
-            // let timerId = setInterval(function () {
-            //     let ab = document.getElementById('adButton');
-            //     ab.textContent = 'You can skip this ad in ' + parseInt(adObject.skipDelay - p.getCurrentTime());
-            //     if (p.getCurrentTime() > adObject.skipDelay) {
-            //         clearInterval(timerId);
-            //         ab.onclick = () => {
-            //             initPlayerForVideo();
-            //             console.log('ab onclick');
-            //         };
-            //         ab.textContent = 'Skip Ad';
-            //         console.log('time to skip ad!');
-            //     }
-            // }, 300);
         }
         // console.log('show called');
     },

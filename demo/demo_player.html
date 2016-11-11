@@ -2,26 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>pauseroll test</title>
+    <title>demo ad plugin</title>
     <!--<script src="http://cdn.clappr.io/latest/clappr.min.js"></script>-->
     <script src="../dist/clappr.min.cdnvideo.repo.js"></script>
     <script src="../dist/vast-client.js"></script>
-    <script src="../dist/pauseroll-ad.js"></script>
+    <script src="../dist/clappr-ad-plugin.js"></script>
     <link rel="icon" href="data:;base64,=">
 </head>
 <body>
 <div id="player"></div>
 <script>
     //        var vastUrl = 'https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml';
-    var vastUrl = 'https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-full-sample.xml';
     var mainVideo = 'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4';
     setVideoType('vod');
 
     //    var mainVideo = 'http://hlscors.cdntest.cdnvideo.ru/cdntest-dvr/bunny_loop.sdp/playlist.m3u8';
     //    setVideoType('live');
 
-    setTypeAd('preroll');
-    //    setTypeAd('pauseroll');
+    var vastUrl = 'https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-full-sample.xml';
+    setTypeAd('pauseroll');
+//        setTypeAd('preroll');
 
     loadVAST(vastUrl, mainVideo).then(function () {
                 p = new Clappr.Player({
@@ -32,7 +32,7 @@
                     parentId: "#player",
                     autoPlay: true,
                     exitFullscreenOnEnd: false,
-                    plugins: [adButton],
+                    plugins: [adPlugin],
                 });
 //        new adPlugin(adObject.skipDelay, playlist, plr = p);
 
