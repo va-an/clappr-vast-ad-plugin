@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>preroll test</title>
+    <!--<script src="http://cdn.clappr.io/latest/clappr.min.js"></script>-->
+    <script src="../dist/clappr.min.cdnvideo.repo.js"></script>
+    <script src="../dist/vast-client.js"></script>
+    <script src="../dist/clappr-ad-plugin.js"></script>
+    <link rel="icon" href="data:;base64,=">
+</head>
+<body>
+<div id="player"></div>
+<script>
+    //    var vastUrl = 'https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-sample.xml';
+    adObject.setTypeAd('preroll');
+    //    adObject.setTypeAd('midroll');
+    var vastUrl = 'https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-full-sample.xml';
+    var mainVideo = 'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4';
+
+
+    createPromise(vastUrl, mainVideo).then(function () {
+        var playlistItem = playlist.shift();
+        adVideoPlayNow = playlistItem.ad;
+
+        p = new Clappr.Player({
+            source: playlistItem.source,
+            height: 360,
+            width: 640,
+            hideMediaControl: false,
+            parentId: "#player",
+            autoPlay: true,
+            exitFullscreenOnEnd: false,
+//            mute: true,
+            plugins: [adButton]
+        });
+
+        new adPlugin(adObject.skipDelay, playlist, plr = p);
+
+    }, function () {
+        console.log('error promise');
+    });
+</script>
+</body>
+</html>

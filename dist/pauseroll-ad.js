@@ -1,5 +1,10 @@
 'use strict';
 
+// TODO return main video when main video ends
+// TODO check wrongs params - typeAd
+// TODO preroll - adObject.typeAd == 'preroll'
+// TODO seekEnabled = false for preroll ad
+
 var adVideoPlayNow = false;
 var p = '';
 var playlist = [];
@@ -9,6 +14,8 @@ var vct = '';
 var typeVideo = '';
 var firstStart = true;
 var pauseNow = false;
+var preroll = false;
+var pauseroll = false;
 
 adObject.wasStarted = false;
 adObject.adMediaFile = '';
@@ -16,11 +23,13 @@ adObject.wasCompleted = false;
 
 var setTypeAd = function setTypeAd(type) {
     adObject.typeAd = type;
-    // if (adObject.typeAd == 'pauseroll') {
-    //     console.log('pau');
-    // } else if (adObject.typeAd == 'preroll') {
-    //     console.log('pre');
-    // }
+    if (type == 'preroll') {
+        preroll = true;
+        adVideoPlayNow = true;
+    } else if (type == 'pauseroll') {
+        pauseroll = true;
+        adVideoPlayNow = false;
+    }
 };
 
 var setVideoType = function setVideoType(type) {
@@ -31,75 +40,83 @@ var setVideoType = function setVideoType(type) {
 var amf = '';
 
 var getVideo = function getVideo() {
-    if (adObject.typeAd == 'pauseroll') {
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
 
-        try {
-            for (var _iterator = playlist[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                var z = _step.value;
+    try {
+        for (var _iterator = playlist[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var z = _step.value;
 
-                if (!z.ad) {
-                    return z;
-                }
+            if (!z.ad) {
+                return z;
             }
-        } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
         } finally {
-            try {
-                if (!_iteratorNormalCompletion && _iterator.return) {
-                    _iterator.return();
-                }
-            } finally {
-                if (_didIteratorError) {
-                    throw _iteratorError;
-                }
+            if (_didIteratorError) {
+                throw _iteratorError;
             }
         }
     }
 };
 
 var getAd = function getAd() {
-    if (adObject.typeAd == 'pauseroll') {
-        var _iteratorNormalCompletion2 = true;
-        var _didIteratorError2 = false;
-        var _iteratorError2 = undefined;
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
 
-        try {
-            for (var _iterator2 = playlist[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                var z = _step2.value;
+    try {
+        for (var _iterator2 = playlist[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var z = _step2.value;
 
-                if (z.ad) {
-                    return z;
-                }
+            if (z.ad) {
+                return z;
             }
-        } catch (err) {
-            _didIteratorError2 = true;
-            _iteratorError2 = err;
+        }
+    } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                _iterator2.return();
+            }
         } finally {
-            try {
-                if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                    _iterator2.return();
-                }
-            } finally {
-                if (_didIteratorError2) {
-                    throw _iteratorError2;
-                }
+            if (_didIteratorError2) {
+                throw _iteratorError2;
             }
         }
     }
 };
 
 var initPlayerForAd = function initPlayerForAd() {
+    console.log('ipfa');
     p.load(getAd().source);
 };
 
 var initPlayerForVideo = function initPlayerForVideo() {
+    console.log('ipfv');
+    adVideoPlayNow = false;
+    pauseNow = false;
     p.load(getVideo().source);
     if (getVideo().typeVideo == 'vod') {
         p.seek(vct);
+    }
+};
+
+var getSource = function getSource() {
+    if (preroll) {
+        return getAd().source;
+    } else if (pauseroll) {
+        return getVideo().source;
     }
 };
 
@@ -252,22 +269,22 @@ _visibilityAPI.setHandler(function () {
 // }
 
 var adButton = Clappr.UIContainerPlugin.extend({
-    name: 'ad_button',
+    name: 'ad_plugin',
     initialize: function initialize() {
         this.render();
     },
 
     bindEvents: function bindEvents() {
-        if (adObject.typeAd == 'pauseroll') {
-            // this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.show);
-            this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToContainer);
-            // this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.destroyAdPlugin);
-            this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.containerPlay);
+        // console.log('bind events - called');
+        this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.clickToContainer);
+        this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.containerPlay);
+        this.listenTo(this.container, Clappr.Events.CONTAINER_ENDED, this.containerEnded);
+
+        if (preroll) {
+            // this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
+        } else if (pauseroll) {
             this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
-            this.listenTo(this.container, Clappr.Events.CONTAINER_ENDED, this.containerEnded);
             // this.listenTo(this.container, Clappr.Events.CONTAINER_READY, this.containerReady);
-        } else if (adObject.typeAd == 'preroll') {
-            // TODO think about this 'if else'
         }
     },
 
@@ -277,34 +294,50 @@ var adButton = Clappr.UIContainerPlugin.extend({
     // },
 
     containerPlay: function containerPlay() {
-        console.log('play called');
-        if (!adVideoPlayNow && !firstStart && pauseNow) {
-            if (getVideo().typeVideo == 'vod') {
-                vct = p.getCurrentTime();
+        if (preroll) {
+            // if (adObject.wasStarted && !adObject.wasCompleted) {
+            //     vastTracker.setPaused(false);
+            // }
+            // if (!adVideoPlayNow) {
+            //     this.destroy();
+            // }
+        } else if (pauseroll) {
+            // console.log('play called');
+            if (!adVideoPlayNow && !firstStart && pauseNow) {
+                if (getVideo().typeVideo == 'vod') {
+                    vct = p.getCurrentTime();
+                }
+                initPlayerForAd();
             }
-            initPlayerForAd();
-        }
-        pauseNow = false;
-        adVideoPlayNow = p.options.sources[0] != getVideo().source;
-        p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
-        if (adVideoPlayNow) {
-            this.show();
-        } else {
-            this.hide();
+            pauseNow = false;
+            adVideoPlayNow = p.options.sources[0] != getVideo().source;
+            p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
+            if (adVideoPlayNow) {
+                this.show();
+            } else {
+                this.hide();
+            }
         }
     },
 
     containerEnded: function containerEnded() {
-        // console.log('container ended');
-        if (!adVideoPlayNow) {
-            console.log('end');
-        } else {
-            initPlayerForVideo();
+        console.log('ce');
+        if (preroll) {
+            // console.log('preroll ended called');
+        } else if (pauseroll) {
+            console.log('pauseroll');
+            if (adVideoPlayNow) {
+                // console.log('end');
+                initPlayerForVideo();
+            } else {
+                // initPlayerForVideo();
+            }
         }
+        // console.log('container ended');
     },
 
     containerPause: function containerPause() {
-        console.log('pause called');
+        // console.log('pause called');
         firstStart = false;
         pauseNow = true;
         // vastTracker.setPaused(true);
@@ -317,48 +350,86 @@ var adButton = Clappr.UIContainerPlugin.extend({
         // }
     },
 
-    destroyAdPlugin: function destroyAdPlugin() {
-        if (adObject.wasStarted && !adObject.wasCompleted) {
-            vastTracker.setPaused(false);
-        }
-        if (!adVideoPlayNow) {
-            this.destroy();
-        }
-    },
-
     clickToContainer: function clickToContainer() {
-        if (adVideoPlayNow) {
+        if (preroll) {
             window.open(adObject.clickLink).focus();
-        } else if (getVideo().typeVideo == 'live') {
-            p.pause();
+        } else if (pauseroll) {
+            if (adVideoPlayNow) {
+                window.open(adObject.clickLink).focus();
+            } else if (getVideo().typeVideo == 'live') {
+                p.pause();
+            }
         }
     },
 
     show: function show() {
-        this.$el.show();
-        var timerId = setInterval(function () {
-            var ab = document.getElementById('adButton');
-            ab.textContent = 'You can skip this ad in ' + parseInt(adObject.skipDelay - p.getCurrentTime());
-            if (p.getCurrentTime() > adObject.skipDelay) {
-                clearInterval(timerId);
-                ab.onclick = function () {
-                    initPlayerForVideo();
-                    console.log('ab onclick');
-                };
-                ab.textContent = 'Skip Ad';
-                console.log('time to skip ad!');
+        var _this = this;
+
+        // console.log('show called');
+        var showAdButton = function showAdButton() {
+            _this.$el.show();
+            var timerId = setInterval(function () {
+                var ab = document.getElementById('adButton');
+                ab.textContent = 'You can skip this ad in ' + parseInt(adObject.skipDelay - p.getCurrentTime());
+                if (p.getCurrentTime() > adObject.skipDelay) {
+                    clearInterval(timerId);
+                    ab.onclick = function () {
+                        console.log('ab onclick');
+                        initPlayerForVideo();
+                    };
+                    ab.textContent = 'Skip Ad';
+                    // console.log('time to skip ad!');
+                }
+            }, 300);
+        };
+        if (preroll) {
+            if (adVideoPlayNow) {
+                showAdButton();
+                // this.$el.show();
+                // let timerId = setInterval(function () {
+                //     let ab = document.getElementById('adButton');
+                //     ab.textContent = 'You can skip this ad in ' + parseInt(adObject.skipDelay - p.getCurrentTime());
+                //     if (p.getCurrentTime() > adObject.skipDelay) {
+                //         clearInterval(timerId);
+                //         ab.onclick = () => {
+                //             initPlayerForVideo();
+                //             console.log('ab onclick');
+                //         };
+                //         ab.textContent = 'Skip Ad';
+                //         console.log('time to skip ad!');
+                //     }
+                // }, 300);
+            } else {
+                this.hide();
             }
-        }, 300);
+        } else if (pauseroll) {
+            showAdButton();
+            // this.$el.show();
+            // let timerId = setInterval(function () {
+            //     let ab = document.getElementById('adButton');
+            //     ab.textContent = 'You can skip this ad in ' + parseInt(adObject.skipDelay - p.getCurrentTime());
+            //     if (p.getCurrentTime() > adObject.skipDelay) {
+            //         clearInterval(timerId);
+            //         ab.onclick = () => {
+            //             initPlayerForVideo();
+            //             console.log('ab onclick');
+            //         };
+            //         ab.textContent = 'Skip Ad';
+            //         console.log('time to skip ad!');
+            //     }
+            // }, 300);
+        }
         // console.log('show called');
     },
 
     hide: function hide() {
-        this.$el.hide();
         // console.log('hide called');
+        this.$el.hide();
     },
 
     render: function render() {
         // console.log('render called');
+
         this.$el.css('font-size', '20px');
         this.$el.css('position', 'absolute');
         this.$el.css('color', 'white');
@@ -368,16 +439,21 @@ var adButton = Clappr.UIContainerPlugin.extend({
         this.$el.css('z-index', '100500');
         this.$el.css('border', 'solid 3px #333333');
         this.$el.css('padding', '5px');
-        // this.$el.html('pew pew pew');
         this.container.$el.append(this.$el);
         this.$el[0].id = 'adButton';
-        if (adVideoPlayNow) {
-            // console.log('render - show');
+
+        if (preroll) {
             this.show();
-        } else {
-            this.hide();
-            // console.log('render - hide');
+        } else if (pauseroll) {
+            if (adVideoPlayNow) {
+                // console.log('render - show');
+                this.show();
+            } else {
+                this.hide();
+                // console.log('render - hide');
+            }
         }
+        // this.$el.html('pew pew pew');
         return this;
     }
 });
