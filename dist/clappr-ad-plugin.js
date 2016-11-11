@@ -24,9 +24,7 @@ var preroll = false;
 var pauseroll = false;
 var videoWasCompleted = false;
 
-adObject.wasStarted = false;
 adObject.adMediaFile = '';
-adObject.wasCompleted = false;
 
 var setTypeAd = function setTypeAd(type) {
     if (type == 'preroll') {
@@ -143,7 +141,7 @@ var loadVAST = function loadVAST(urlVast, video) {
             vastTracker.on('resume', function () {
                 console.log(currentDate() + " Ad event: resume");
             });
-            vastTracker.on('resume', function () {
+            vastTracker.on('complete', function () {
                 console.log(currentDate() + " Ad event: complete");
             });
 
@@ -210,13 +208,13 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
         this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.ContainerClick);
         this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.containerPlay);
         this.listenTo(this.container, Clappr.Events.CONTAINER_ENDED, this.containerEnded);
+        this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
 
-        if (preroll) {
-            // this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
-        } else if (pauseroll) {
-            this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
-            // this.listenTo(this.container, Clappr.Events.CONTAINER_READY, this.containerReady);
-        }
+        // if (preroll) {
+        // } else if (pauseroll) {
+        // this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
+        // this.listenTo(this.container, Clappr.Events.CONTAINER_READY, this.containerReady);
+        // }
     },
 
     initPlayerFor: function initPlayerFor(type) {
@@ -238,20 +236,19 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
     containerPlay: function containerPlay() {
         p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
         if (preroll) {
-            if (firstStart) {
+            if (adVideoPlayNow && !firstStart) {
+                vastTracker.setPaused(false);
+            }
+
+            if (adVideoPlayNow && firstStart) {
                 vastTracker.setProgress(1);
                 firstStart = false;
             }
+
             if (videoWasCompleted) {
                 videoWasCompleted = false;
                 this.initPlayerFor('ad');
             }
-            // p.load(getAd().source);
-            // p.stop();
-            // this.initPlayerFor('ad');
-            // if (adObject.wasStarted && !adObject.wasCompleted) {
-            //     vastTracker.setPaused(false);
-            // }
         } else if (pauseroll) {
             // console.log('play called');
 
@@ -287,9 +284,14 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
     },
 
     containerPause: function containerPause() {
-        // console.log('pause called');
-        firstStart = false;
-        pauseNow = true;
+        console.log('pause called');
+        if (adVideoPlayNow && !p.ended) {
+            vastTracker.setPaused(true);
+        }
+        if (preroll) {} else if (pauseroll) {
+            firstStart = false;
+            pauseNow = true;
+        }
         // vastTracker.setPaused(true);
     },
 
