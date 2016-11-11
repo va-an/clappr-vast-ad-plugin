@@ -20,8 +20,8 @@
     //    setVideoType('live');
 
     var vastUrl = 'https://d11.cdnvideo.ru/videojs/vast-parser-copy/vast-google-full-sample.xml';
-    setTypeAd('pauseroll');
-//        setTypeAd('preroll');
+    //    setTypeAd('pauseroll');
+    setTypeAd('preroll');
 
     loadVAST(vastUrl, mainVideo).then(function () {
                 p = new Clappr.Player({
@@ -34,11 +34,9 @@
                     exitFullscreenOnEnd: false,
                     plugins: [adPlugin],
                 });
-//        new adPlugin(adObject.skipDelay, playlist, plr = p);
-
             },
             function () {
-                console.log('error promise');
+                console.log('loadVAST error');
             }
     );
 </script>

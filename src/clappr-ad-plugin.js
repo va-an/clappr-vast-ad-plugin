@@ -20,6 +20,7 @@ let firstStart = true;
 let pauseNow = false;
 let preroll = false;
 let pauseroll = false;
+let videoWasCompleted = false;
 
 adObject.wasStarted = false;
 adObject.adMediaFile = '';
@@ -33,13 +34,6 @@ const setTypeAd = (type) => {
         pauseroll = true;
         adVideoPlayNow = false;
     }
-
-    // for tests
-    // if (preroll) {
-    //     console.log('preroll');
-    // } else {
-    //     console.log('pauseroll');
-    // }
 };
 
 const setVideoType = (type) => {
@@ -195,6 +189,7 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
             }
         } else if (type == 'ad') {
             // console.log('ipfa in plugin');
+            adVideoPlayNow = true;
             p.load(getAd().source);
         }
     },
@@ -202,6 +197,17 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
     containerPlay: function () {
         p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
         if (preroll) {
+            if (firstStart) {
+                vastTracker.setProgress(1);
+                firstStart = false;
+            }
+            if (videoWasCompleted) {
+                videoWasCompleted = false;
+                this.initPlayerFor('ad');
+            }
+            // p.load(getAd().source);
+            // p.stop();
+            // this.initPlayerFor('ad');
             // if (adObject.wasStarted && !adObject.wasCompleted) {
             //     vastTracker.setPaused(false);
             // }
@@ -225,6 +231,13 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
     },
 
     containerEnded: function () {
+        if (preroll) {
+            if (!adVideoPlayNow) {
+                videoWasCompleted = true;
+            } else if (adVideoPlayNow) {
+                vastTracker.complete();
+            }
+        }
         // console.log('ce');
         if (adVideoPlayNow) {
             // console.log('end');
@@ -264,6 +277,7 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
                     clearInterval(timerId);
                     ab.onclick = () => {
                         console.log('ab onclick');
+                        vastTracker.skip();
                         this.initPlayerFor('video');
                     };
                     ab.textContent = 'Skip Ad';
