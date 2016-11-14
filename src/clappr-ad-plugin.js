@@ -7,7 +7,6 @@
 // common
 // TODO VAST events
 // TODO test VAST real examples
-// TODO move code in plugin by maximum
 
 let adVideoPlayNow = false;
 let p = '';
@@ -65,7 +64,7 @@ const getSource = () => {
     }
 };
 
-let loadVAST = (urlVast, video) => {
+const loadVAST = (urlVast, video) => {
     return new Promise(function (resolve, rejected) {
         DMVAST.client.get(urlVast, function (r, e) {
 
@@ -113,6 +112,7 @@ let loadVAST = (urlVast, video) => {
                 }
             ];
             resolve();
+            console.log('vast loaded');
         });
     });
 };
@@ -193,30 +193,24 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
     },
 
     containerPlay: function () {
+        let self = this;
         // console.log('play called');
         p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
         if (preroll) {
             if (adVideoPlayNow) {
-                if (!firstStart) {
-                    vastTracker.setPaused(false);
-                } else {
+                if (firstStart) {
                     vastTracker.setProgress(1);
                     firstStart = false;
+                } else {
+                    vastTracker.setPaused(false);
                 }
             }
 
-            // if (adVideoPlayNow && !firstStart) {
-            //     vastTracker.setPaused(false);
-            // }
-            //
-            // if (adVideoPlayNow && firstStart) {
-            //     vastTracker.setProgress(1);
-            //     firstStart = false;
-            // }
-
             if (videoWasCompleted) {
                 videoWasCompleted = false;
-                this.initPlayerFor('ad');
+                loadVAST(vastUrl, mainVideo).then(function () {
+                    self.initPlayerFor('ad');
+                });
             }
         } else if (pauseroll) {
             if (adVideoPlayNow)
@@ -229,7 +223,9 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
                 if (getVideo().typeVideo == 'vod') {
                     vct = p.getCurrentTime();
                 }
-                this.initPlayerFor('ad');
+                loadVAST(vastUrl, mainVideo).then(function () {
+                    self.initPlayerFor('ad');
+                });
             }
             pauseNow = false;
             adVideoPlayNow = p.options.sources[0] != getVideo().source;
@@ -242,17 +238,12 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
     },
 
     containerEnded: function () {
-        if (preroll) {
-            if (!adVideoPlayNow) {
-                videoWasCompleted = true;
-            } else if (adVideoPlayNow) {
-                vastTracker.complete();
-            }
-        }
-        // console.log('ce');
         if (adVideoPlayNow) {
-            // console.log('end');
+            vastTracker.complete();
             this.initPlayerFor('video');
+        } else if (!adVideoPlayNow && preroll) {
+            videoWasCompleted = true;
+            firstStart = true;
         }
     },
 
