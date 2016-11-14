@@ -234,24 +234,37 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
     },
 
     containerPlay: function containerPlay() {
+        // console.log('play called');
         p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
         if (preroll) {
-            if (adVideoPlayNow && !firstStart) {
-                vastTracker.setPaused(false);
+            if (adVideoPlayNow) {
+                if (!firstStart) {
+                    vastTracker.setPaused(false);
+                } else {
+                    vastTracker.setProgress(1);
+                    firstStart = false;
+                }
             }
 
-            if (adVideoPlayNow && firstStart) {
-                vastTracker.setProgress(1);
-                firstStart = false;
-            }
+            // if (adVideoPlayNow && !firstStart) {
+            //     vastTracker.setPaused(false);
+            // }
+            //
+            // if (adVideoPlayNow && firstStart) {
+            //     vastTracker.setProgress(1);
+            //     firstStart = false;
+            // }
 
             if (videoWasCompleted) {
                 videoWasCompleted = false;
                 this.initPlayerFor('ad');
             }
         } else if (pauseroll) {
-            // console.log('play called');
-
+            if (adVideoPlayNow) if (p.getCurrentTime() == 0) {
+                vastTracker.setProgress(1);
+            } else {
+                vastTracker.setPaused(false);
+            }
             if (!adVideoPlayNow && !firstStart && pauseNow && p.getCurrentTime() != 0) {
                 if (getVideo().typeVideo == 'vod') {
                     vct = p.getCurrentTime();
@@ -284,7 +297,7 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
     },
 
     containerPause: function containerPause() {
-        console.log('pause called');
+        // console.log('pause called');
         if (adVideoPlayNow && !p.ended) {
             vastTracker.setPaused(true);
         }
