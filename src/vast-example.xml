@@ -17,9 +17,9 @@
                             <Tracking event="resume"><![CDATA[http://localhost:8808/ad-event/resume]]></Tracking>
                             <Tracking event="complete"><![CDATA[http://localhost:8808/ad-event/complete]]></Tracking>
                             <Tracking event="skip"><![CDATA[http://localhost:8808/ad-event/skip]]></Tracking>
-                            <Tracking event="firstQuartile"><![CDATA[https://d11.cdnvideo.ru/ad/firstQuartile]]></Tracking>
-                            <Tracking event="midpoint"><![CDATA[https://d11.cdnvideo.ru/ad/midpoint]]></Tracking>
-                            <Tracking event="thirdQuartile"><![CDATA[https://d11.cdnvideo.ru/ad/thirdQuartile]]></Tracking>
+                            <Tracking event="firstQuartile"><![CDATA[http://localhost:8808/ad-event/firstquartile]]></Tracking>
+                            <Tracking event="midpoint"><![CDATA[http://localhost:8808/ad-event/midpoint]]></Tracking>
+                            <Tracking event="thirdQuartile"><![CDATA[http://localhost:8808/ad-event/thirdquartile]]></Tracking>
                             <Tracking event="mute"><![CDATA[https://d11.cdnvideo.ru/ad/mute]]></Tracking>
                             <Tracking event="unmute"><![CDATA[https://d11.cdnvideo.ru/ad/unmute]]></Tracking>
                             <Tracking event="rewind"><![CDATA[https://d11.cdnvideo.ru/ad/rewind]]></Tracking>

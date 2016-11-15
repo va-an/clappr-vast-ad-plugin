@@ -22,6 +22,7 @@ var pauseNow = false;
 var preroll = false;
 var pauseroll = false;
 var videoWasCompleted = false;
+var skipButtonPressed = false;
 
 adObject.adMediaFile = '';
 
@@ -143,6 +144,15 @@ var loadVAST = function loadVAST(urlVast, video) {
             vastTracker.on('complete', function () {
                 console.log(currentDate() + " Ad event: complete");
             });
+            vastTracker.on('firstQuartile', function () {
+                console.log(currentDate() + " Ad event: firstquartile");
+            });
+            vastTracker.on('midpoint', function () {
+                console.log(currentDate() + " Ad event: midpoint");
+            });
+            vastTracker.on('thirdQuartile', function () {
+                console.log(currentDate() + " Ad event: thirdQuartile");
+            });
 
             playlist = [{
                 source: adObject.adMediaFile,
@@ -201,6 +211,7 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
     name: 'ad_plugin',
     initialize: function initialize() {
         this.render();
+        this.checkAdTime();
     },
 
     bindEvents: function bindEvents() {
@@ -217,6 +228,33 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
         // }
     },
 
+    checkAdTime: function checkAdTime() {
+        if (adVideoPlayNow) {
+            (function () {
+                var fq = false,
+                    mp = false,
+                    tq = false;
+                var timerId = setInterval(function () {
+                    if (skipButtonPressed) {
+                        clearInterval(timerId);
+                    } else {
+                        if (p.getCurrentTime() >= p.getDuration() * 0.25 && !fq) {
+                            vastTracker.setProgress(p.getCurrentTime());
+                            fq = true;
+                        } else if (p.getCurrentTime() >= p.getDuration() * 0.5 && !mp) {
+                            vastTracker.setProgress(p.getCurrentTime());
+                            mp = true;
+                        } else if (p.getCurrentTime() >= p.getDuration() * 0.75 && !tq) {
+                            vastTracker.setProgress(p.getCurrentTime());
+                            tq = true;
+                            clearInterval(timerId);
+                        }
+                    }
+                }, 300);
+            })();
+        }
+    },
+
     initPlayerFor: function initPlayerFor(type) {
         if (type == 'video') {
             // console.log('ipfv in plugin');
@@ -230,6 +268,7 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
             // console.log('ipfa in plugin');
             adVideoPlayNow = true;
             p.load(getAd().source);
+            skipButtonPressed = false;
         }
     },
 
@@ -325,6 +364,7 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
                 if (p.getCurrentTime() > adObject.skipDelay) {
                     clearInterval(timerId);
                     ab.onclick = function () {
+                        skipButtonPressed = true;
                         console.log('ab onclick');
                         vastTracker.skip();
                         _this.initPlayerFor('video');

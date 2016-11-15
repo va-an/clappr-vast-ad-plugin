@@ -20,6 +20,7 @@ let pauseNow = false;
 let preroll = false;
 let pauseroll = false;
 let videoWasCompleted = false;
+let skipButtonPressed = false;
 
 adObject.adMediaFile = '';
 
@@ -99,6 +100,15 @@ const loadVAST = (urlVast, video) => {
             vastTracker.on('complete', () => {
                 console.log(currentDate() + " Ad event: complete");
             });
+            vastTracker.on('firstQuartile', function () {
+                console.log(currentDate() + " Ad event: firstquartile");
+            });
+            vastTracker.on('midpoint', function () {
+                console.log(currentDate() + " Ad event: midpoint");
+            });
+            vastTracker.on('thirdQuartile', function () {
+                console.log(currentDate() + " Ad event: thirdQuartile");
+            });
 
             playlist = [
                 {
@@ -160,6 +170,7 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
     name: 'ad_plugin',
     initialize: function initialize() {
         this.render();
+        this.checkAdTime();
     },
 
     bindEvents: function bindEvents() {
@@ -176,6 +187,29 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
         // }
     },
 
+    checkAdTime: function () {
+        if (adVideoPlayNow) {
+            let fq = false, mp = false, tq = false;
+            let timerId = setInterval(function () {
+                if (skipButtonPressed) {
+                    clearInterval(timerId);
+                } else {
+                    if (p.getCurrentTime() >= p.getDuration() * 0.25 && !fq) {
+                        vastTracker.setProgress(p.getCurrentTime());
+                        fq = true;
+                    } else if (p.getCurrentTime() >= p.getDuration() * 0.5 && !mp) {
+                        vastTracker.setProgress(p.getCurrentTime());
+                        mp = true;
+                    } else if (p.getCurrentTime() >= p.getDuration() * 0.75 && !tq) {
+                        vastTracker.setProgress(p.getCurrentTime());
+                        tq = true;
+                        clearInterval(timerId);
+                    }
+                }
+            }, 300);
+        }
+    },
+
     initPlayerFor: function (type) {
         if (type == 'video') {
             // console.log('ipfv in plugin');
@@ -189,6 +223,7 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
             // console.log('ipfa in plugin');
             adVideoPlayNow = true;
             p.load(getAd().source);
+            skipButtonPressed = false;
         }
     },
 
@@ -285,6 +320,7 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
                 if (p.getCurrentTime() > adObject.skipDelay) {
                     clearInterval(timerId);
                     ab.onclick = () => {
+                        skipButtonPressed = true;
                         console.log('ab onclick');
                         vastTracker.skip();
                         this.initPlayerFor('video');
