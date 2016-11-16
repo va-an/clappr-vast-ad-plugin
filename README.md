@@ -1,4 +1,4 @@
-# clappr-ad-plugin
+# clappr-vast-ad-plugin
 Plugin for Clappr for playing advertisements by VAST (preroll and pauseroll).
 
 # About

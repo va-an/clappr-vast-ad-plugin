@@ -21,6 +21,7 @@ let preroll = false;
 let pauseroll = false;
 let videoWasCompleted = false;
 let skipButtonPressed = false;
+let isFullscreen = false;
 
 adObject.adMediaFile = '';
 
@@ -65,6 +66,15 @@ const getSource = () => {
     }
 };
 
+const fsEventOn = () => {
+    p.on(Clappr.Events.PLAYER_FULLSCREEN, function () {
+        isFullscreen = !isFullscreen;
+        if (adVideoPlayNow) {
+            vastTracker.setFullscreen(isFullscreen);
+        }
+    })
+};
+
 const loadVAST = (urlVast, video) => {
     return new Promise(function (resolve, rejected) {
         DMVAST.client.get(urlVast, function (r, e) {
@@ -101,13 +111,31 @@ const loadVAST = (urlVast, video) => {
                 console.log(currentDate() + " Ad event: complete");
             });
             vastTracker.on('firstQuartile', function () {
-                console.log(currentDate() + " Ad event: firstquartile");
+                console.log(currentDate() + " Ad event: firstQuartile");
             });
             vastTracker.on('midpoint', function () {
                 console.log(currentDate() + " Ad event: midpoint");
             });
             vastTracker.on('thirdQuartile', function () {
                 console.log(currentDate() + " Ad event: thirdQuartile");
+            });
+            vastTracker.on('creativeView', function () {
+                console.log(currentDate() + " Ad event: impression");
+                console.log(currentDate() + " Ad event: creativeView");
+            });
+            vastTracker.on('mute', function () {
+                console.log(currentDate() + " Ad event: mute");
+            });
+
+            vastTracker.on('unmute', function () {
+                console.log(currentDate() + " Ad event: unmute");
+            });
+            vastTracker.on('fullscreen', function() {
+                console.log(currentDate() + " Ad event: fullscreen");
+            });
+
+            vastTracker.on('exitFullscreen', function() {
+                console.log(currentDate() + " Ad event: exitFullscreen");
             });
 
             playlist = [
@@ -168,6 +196,7 @@ _visibilityAPI.setHandler(function () {
 
 let adPlugin = Clappr.UIContainerPlugin.extend({
     name: 'ad_plugin',
+    AdMuted: false,
     initialize: function initialize() {
         this.render();
         this.checkAdTime();
@@ -179,12 +208,20 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
         this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.containerPlay);
         this.listenTo(this.container, Clappr.Events.CONTAINER_ENDED, this.containerEnded);
         this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
+        this.listenTo(this.container, Clappr.Events.CONTAINER_VOLUME, this.containerVolume);
+    },
 
-        // if (preroll) {
-        // } else if (pauseroll) {
-        // this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
-        // this.listenTo(this.container, Clappr.Events.CONTAINER_READY, this.containerReady);
-        // }
+    containerVolume: function () {
+        if (adVideoPlayNow && p) {
+            // console.log(p.getVolume());
+            if (p.getVolume() == 0 && !this.AdMuted) {
+                vastTracker.setMuted(true);
+                this.AdMuted = true;
+            } else if (p.getVolume() != 0 && this.AdMuted) {
+                vastTracker.setMuted(false);
+                this.AdMuted = false;
+            }
+        }
     },
 
     checkAdTime: function () {
@@ -211,8 +248,9 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
     },
 
     initPlayerFor: function (type) {
+        // console.log('ipf');
         if (type == 'video') {
-            // console.log('ipfv in plugin');
+            // console.log('ipfv');
             adVideoPlayNow = false;
             pauseNow = false;
             p.load(getVideo().source);
@@ -220,9 +258,10 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
                 p.seek(vct);
             }
         } else if (type == 'ad') {
-            // console.log('ipfa in plugin');
+            // console.log('ipfa');
             adVideoPlayNow = true;
             p.load(getAd().source);
+            p.setVolume(100);
             skipButtonPressed = false;
         }
     },
@@ -234,8 +273,13 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
         if (preroll) {
             if (adVideoPlayNow) {
                 if (firstStart) {
+                    p.setVolume(100);
+                    vastTracker.load();
                     vastTracker.setProgress(1);
                     firstStart = false;
+                    if (isFullscreen) {
+                        vastTracker.setFullscreen(isFullscreen);
+                    }
                 } else {
                     vastTracker.setPaused(false);
                 }
@@ -250,7 +294,11 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
         } else if (pauseroll) {
             if (adVideoPlayNow)
                 if (p.getCurrentTime() == 0) {
+                    vastTracker.load();
                     vastTracker.setProgress(1);
+                    if (isFullscreen) {
+                        vastTracker.setFullscreen(isFullscreen);
+                    }
                 } else {
                     vastTracker.setPaused(false);
                 }

@@ -6,7 +6,7 @@
             <AdTitle>External NCA1C1L1 LinearInlineSkippable</AdTitle>
             <Description><![CDATA[External NCA1C1L1 LinearInlineSkippable ad]]></Description>
             <Error><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BJInKKU0gWMKbDdeMZJGPitABkNWP6wYAAAAQASCo3bsmOABYsJSCxtcBYISV7IXcHboBCjcyOHg5MF94bWzIAQXAAgLgAgDqAiUvMTI0MzE5MDk2L2V4dGVybmFsL3NpbmdsZV9hZF9zYW1wbGVz-AL30R6AAwGQA4QHmAPwAagDAeAEAdIFBhDw3rnMApAGAaAGI9gHAeAHCg&sigh=I6W3EwjFcrw&label=videoplayfailed[ERRORCODE]]]></Error>
-            <Impression><![CDATA[https://d11.cdnvideo.ru/ad/impression]]></Impression>
+            <Impression><![CDATA[http://localhost:8808/ad-event/impression]]></Impression>
             <Creatives>
                 <Creative id="57860459056" sequence="1">
                     <Linear skipoffset="00:00:05">
@@ -20,16 +20,16 @@
                             <Tracking event="firstQuartile"><![CDATA[http://localhost:8808/ad-event/firstquartile]]></Tracking>
                             <Tracking event="midpoint"><![CDATA[http://localhost:8808/ad-event/midpoint]]></Tracking>
                             <Tracking event="thirdQuartile"><![CDATA[http://localhost:8808/ad-event/thirdquartile]]></Tracking>
-                            <Tracking event="mute"><![CDATA[https://d11.cdnvideo.ru/ad/mute]]></Tracking>
-                            <Tracking event="unmute"><![CDATA[https://d11.cdnvideo.ru/ad/unmute]]></Tracking>
-                            <Tracking event="rewind"><![CDATA[https://d11.cdnvideo.ru/ad/rewind]]></Tracking>
-                            <Tracking event="fullscreen"><![CDATA[https://d11.cdnvideo.ru/ad/fullscreen]]></Tracking>
-                            <Tracking event="creativeView"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BJInKKU0gWMKbDdeMZJGPitABkNWP6wYAAAAQASCo3bsmOABYsJSCxtcBYISV7IXcHboBCjcyOHg5MF94bWzIAQXAAgLgAgDqAiUvMTI0MzE5MDk2L2V4dGVybmFsL3NpbmdsZV9hZF9zYW1wbGVz-AL30R6AAwGQA4QHmAPwAagDAeAEAdIFBhDw3rnMApAGAaAGI9gHAeAHCg&sigh=I6W3EwjFcrw&label=vast_creativeview&ad_mt=[AD_MT]]]></Tracking>
-                            <Tracking event="exitFullscreen"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BJInKKU0gWMKbDdeMZJGPitABkNWP6wYAAAAQASCo3bsmOABYsJSCxtcBYISV7IXcHboBCjcyOHg5MF94bWzIAQXAAgLgAgDqAiUvMTI0MzE5MDk2L2V4dGVybmFsL3NpbmdsZV9hZF9zYW1wbGVz-AL30R6AAwGQA4QHmAPwAagDAeAEAdIFBhDw3rnMApAGAaAGI9gHAeAHCg&sigh=I6W3EwjFcrw&label=vast_exit_fullscreen&ad_mt=[AD_MT]]]></Tracking>
-                            <Tracking event="acceptInvitationLinear"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BJInKKU0gWMKbDdeMZJGPitABkNWP6wYAAAAQASCo3bsmOABYsJSCxtcBYISV7IXcHboBCjcyOHg5MF94bWzIAQXAAgLgAgDqAiUvMTI0MzE5MDk2L2V4dGVybmFsL3NpbmdsZV9hZF9zYW1wbGVz-AL30R6AAwGQA4QHmAPwAagDAeAEAdIFBhDw3rnMApAGAaAGI9gHAeAHCg&sigh=I6W3EwjFcrw&label=acceptinvitation&ad_mt=[AD_MT]]]></Tracking>
-                            <Tracking event="closeLinear"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BJInKKU0gWMKbDdeMZJGPitABkNWP6wYAAAAQASCo3bsmOABYsJSCxtcBYISV7IXcHboBCjcyOHg5MF94bWzIAQXAAgLgAgDqAiUvMTI0MzE5MDk2L2V4dGVybmFsL3NpbmdsZV9hZF9zYW1wbGVz-AL30R6AAwGQA4QHmAPwAagDAeAEAdIFBhDw3rnMApAGAaAGI9gHAeAHCg&sigh=I6W3EwjFcrw&label=adclose&ad_mt=[AD_MT]]]></Tracking>
-                            <Tracking event="progress" offset="00:00:05"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BJInKKU0gWMKbDdeMZJGPitABkNWP6wYAAAAQASCo3bsmOABYsJSCxtcBYISV7IXcHboBCjcyOHg5MF94bWzIAQXAAgLgAgDqAiUvMTI0MzE5MDk2L2V4dGVybmFsL3NpbmdsZV9hZF9zYW1wbGVz-AL30R6AAwGQA4QHmAPwAagDAeAEAdIFBhDw3rnMApAGAaAGI9gHAeAHCg&sigh=I6W3EwjFcrw&label=video_skip_shown&ad_mt=[AD_MT]]]></Tracking>
-                            <Tracking event="progress" offset="00:00:30"><![CDATA[https://pubads.g.doubleclick.net/pagead/conversion/?ai=BJInKKU0gWMKbDdeMZJGPitABkNWP6wYAAAAQASCo3bsmOABYsJSCxtcBYISV7IXcHboBCjcyOHg5MF94bWzIAQXAAgLgAgDqAiUvMTI0MzE5MDk2L2V4dGVybmFsL3NpbmdsZV9hZF9zYW1wbGVz-AL30R6AAwGQA4QHmAPwAagDAeAEAdIFBhDw3rnMApAGAaAGI9gHAeAHCg&sigh=I6W3EwjFcrw&label=video_engaged_view&ad_mt=[AD_MT]]]></Tracking>
+                            <Tracking event="mute"><![CDATA[http://localhost:8808/ad-event/mute]]></Tracking>
+                            <Tracking event="unmute"><![CDATA[http://localhost:8808/ad-event/unmute]]></Tracking>
+                            <Tracking event="rewind"><![CDATA[http://localhost:8808/ad-event/rewind]]></Tracking>
+                            <Tracking event="fullscreen"><![CDATA[http://localhost:8808/ad-event/fullscreen]]></Tracking>
+                            <Tracking event="creativeView"><![CDATA[http://localhost:8808/ad-event/creativeView]]></Tracking>
+                            <Tracking event="exitFullscreen"><![CDATA[http://localhost:8808/ad-event/exitFullscreen]]></Tracking>
+                            <Tracking event="acceptInvitationLinear"><![CDATA[http://localhost:8808/ad-event/acceptInvitationLinear]]></Tracking>
+                            <Tracking event="closeLinear"><![CDATA[http://localhost:8808/ad-event/closeLinear]]></Tracking>
+                            <Tracking event="progress" offset="00:00:05"><![CDATA[http://localhost:8808/ad-event/progress-05]]></Tracking>
+                            <Tracking event="progress" offset="00:00:30"><![CDATA[http://localhost:8808/ad-event/progress-30]]></Tracking>
                         </TrackingEvents>
                         <AdParameters><![CDATA[custom_param=some_value]]></AdParameters>
                         <VideoClicks>
