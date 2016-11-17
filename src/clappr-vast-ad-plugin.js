@@ -22,6 +22,7 @@ let pauseroll = false;
 let skipButtonPressed = false;
 let isFullscreen = false;
 let progressEventsSeconds = [];
+let isVPAID = false;
 
 adObject.adMediaFile = '';
 
@@ -38,9 +39,6 @@ const setTypeAd = (type) => {
 const setVideoType = (type) => {
     typeVideo = type;
 };
-
-// for tests
-let amf = '';
 
 const getVideo = () => {
     for (let z of playlist) {
@@ -78,10 +76,13 @@ const fsEventOn = () => {
 const loadVAST = (urlVast, video) => {
     return new Promise(function (resolve, rejected) {
         DMVAST.client.get(urlVast, function (r, e) {
+            console.log(r);
 
-            // for containerEnded
-            amf = r;
-            // console.log(amf);
+            // console.log(r.ads[0].creatives[0].mediaFiles);
+            // console.log(r.ads[0].creatives[0].mediaFiles[0]);
+            // console.log(r.ads[0].creatives[0].mediaFiles[0].apiFramework);
+            // console.log(r.ads[0].creatives[0].mediaFiles[0].fileURL);
+            // console.log(r.ads[0].creatives[0].type);
 
             adObject.adMediaFile = r.ads[0].creatives[0].mediaFiles[0].fileURL;
             adObject.skipDelay = r.ads[0].creatives[0].skipDelay;
@@ -133,6 +134,11 @@ const loadVAST = (urlVast, video) => {
                     typeVideo: typeVideo
                 }
             ];
+
+            if (r.ads[0].creatives[0].mediaFiles[0].apiFramework == 'VPAID') {
+                console.log('VPAID, skipping');
+                isVPAID = true;
+            }
             resolve();
             console.log('vast loaded');
         });
@@ -349,7 +355,7 @@ initialize: function initialize() {
     },
 
     show: function () {
-        console.log('show called');
+        // console.log('show called');
         const showAdButton = () => {
             this.$el.show();
             let timerId = setInterval(() => {

@@ -24,6 +24,7 @@ var pauseroll = false;
 var skipButtonPressed = false;
 var isFullscreen = false;
 var progressEventsSeconds = [];
+var isVPAID = false;
 
 adObject.adMediaFile = '';
 
@@ -40,9 +41,6 @@ var setTypeAd = function setTypeAd(type) {
 var setVideoType = function setVideoType(type) {
     typeVideo = type;
 };
-
-// for tests
-var amf = '';
 
 var getVideo = function getVideo() {
     var _iteratorNormalCompletion = true;
@@ -122,10 +120,13 @@ var fsEventOn = function fsEventOn() {
 var loadVAST = function loadVAST(urlVast, video) {
     return new Promise(function (resolve, rejected) {
         DMVAST.client.get(urlVast, function (r, e) {
+            console.log(r);
 
-            // for containerEnded
-            amf = r;
-            // console.log(amf);
+            // console.log(r.ads[0].creatives[0].mediaFiles);
+            // console.log(r.ads[0].creatives[0].mediaFiles[0]);
+            // console.log(r.ads[0].creatives[0].mediaFiles[0].apiFramework);
+            // console.log(r.ads[0].creatives[0].mediaFiles[0].fileURL);
+            // console.log(r.ads[0].creatives[0].type);
 
             adObject.adMediaFile = r.ads[0].creatives[0].mediaFiles[0].fileURL;
             adObject.skipDelay = r.ads[0].creatives[0].skipDelay;
@@ -202,6 +203,11 @@ var loadVAST = function loadVAST(urlVast, video) {
                 ad: false,
                 typeVideo: typeVideo
             }];
+
+            if (r.ads[0].creatives[0].mediaFiles[0].apiFramework == 'VPAID') {
+                console.log('VPAID, skipping');
+                isVPAID = true;
+            }
             resolve();
             console.log('vast loaded');
         });
@@ -421,7 +427,7 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
     show: function show() {
         var _this = this;
 
-        console.log('show called');
+        // console.log('show called');
         var showAdButton = function showAdButton() {
             _this.$el.show();
             var timerId = setInterval(function () {
