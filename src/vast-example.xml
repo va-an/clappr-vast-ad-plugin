@@ -24,16 +24,18 @@
                             <Tracking event="unmute"><![CDATA[http://localhost:8808/ad-event/unmute]]></Tracking>
                             <Tracking event="rewind"><![CDATA[http://localhost:8808/ad-event/rewind]]></Tracking>
                             <Tracking event="fullscreen"><![CDATA[http://localhost:8808/ad-event/fullscreen]]></Tracking>
-                            <Tracking event="creativeView"><![CDATA[http://localhost:8808/ad-event/creativeView]]></Tracking>
                             <Tracking event="exitFullscreen"><![CDATA[http://localhost:8808/ad-event/exitFullscreen]]></Tracking>
+                            <Tracking event="creativeView"><![CDATA[http://localhost:8808/ad-event/creativeView]]></Tracking>
                             <Tracking event="acceptInvitationLinear"><![CDATA[http://localhost:8808/ad-event/acceptInvitationLinear]]></Tracking>
                             <Tracking event="closeLinear"><![CDATA[http://localhost:8808/ad-event/closeLinear]]></Tracking>
-                            <Tracking event="progress" offset="00:00:05"><![CDATA[http://localhost:8808/ad-event/progress-05]]></Tracking>
-                            <Tracking event="progress" offset="00:00:30"><![CDATA[http://localhost:8808/ad-event/progress-30]]></Tracking>
+                            <Tracking event="progress" offset="00:00:01"><![CDATA[http://localhost:8808/ad-event/progress-three]]></Tracking>
+                            <Tracking event="progress" offset="00:00:05"><![CDATA[http://localhost:8808/ad-event/progress-five]]></Tracking>
+                            <Tracking event="progress" offset="00:00:04"><![CDATA[http://localhost:8808/ad-event/progress-seven]]></Tracking>
                         </TrackingEvents>
                         <AdParameters><![CDATA[custom_param=some_value]]></AdParameters>
                         <VideoClicks>
                             <ClickThrough id="GDFP"><![CDATA[https://developers.google.com/interactive-media-ads/docs/sdks/html5/vastinspector]]></ClickThrough>
+                            <ClickTracking id=""><![CDATA[http://localhost:8808/ad-event/clickTracking]]></ClickTracking>
                         </VideoClicks>
                         <MediaFiles>
                             <MediaFile id="GDFP" delivery="progressive" width="1280" height="720" type="video/mp4" bitrate="533" scalable="true" maintainAspectRatio="true"><![CDATA[https://d11.cdnvideo.ru/videojs/files/adExample.mp4]]></MediaFile>

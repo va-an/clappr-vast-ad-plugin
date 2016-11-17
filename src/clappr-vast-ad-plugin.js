@@ -19,9 +19,9 @@ let firstStart = true;
 let pauseNow = false;
 let preroll = false;
 let pauseroll = false;
-let videoWasCompleted = false;
 let skipButtonPressed = false;
 let isFullscreen = false;
+let progressEventsSeconds = [];
 
 adObject.adMediaFile = '';
 
@@ -95,49 +95,33 @@ const loadVAST = (urlVast, video) => {
                 return "(" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ") ";
             };
 
-            vastTracker.on('start', () => {
-                console.log(currentDate() + " Ad event: start");
-            });
-            vastTracker.on('skip', () => {
-                console.log(currentDate() + " Ad event: skip");
-            });
-            vastTracker.on('pause', () => {
-                console.log(currentDate() + " Ad event: pause");
-            });
-            vastTracker.on('resume', () => {
-                console.log(currentDate() + " Ad event: resume");
-            });
-            vastTracker.on('complete', () => {
-                console.log(currentDate() + " Ad event: complete");
-            });
-            vastTracker.on('firstQuartile', function () {
-                console.log(currentDate() + " Ad event: firstQuartile");
-            });
-            vastTracker.on('midpoint', function () {
-                console.log(currentDate() + " Ad event: midpoint");
-            });
-            vastTracker.on('thirdQuartile', function () {
-                console.log(currentDate() + " Ad event: thirdQuartile");
-            });
-            vastTracker.on('creativeView', function () {
+            vastTracker.on('start', () => console.log(currentDate() + " Ad event: start"));
+            vastTracker.on('skip', () => console.log(currentDate() + " Ad event: skip"));
+            vastTracker.on('pause', () => console.log(currentDate() + " Ad event: pause"));
+            vastTracker.on('resume', () => console.log(currentDate() + " Ad event: resume"));
+            vastTracker.on('complete', () => console.log(currentDate() + " Ad event: complete"));
+            vastTracker.on('firstQuartile', () => console.log(currentDate() + " Ad event: firstQuartile"));
+            vastTracker.on('midpoint', () => console.log(currentDate() + " Ad event: midpoint"));
+            vastTracker.on('thirdQuartile', () => console.log(currentDate() + " Ad event: thirdQuartile"));
+            vastTracker.on('mute', () => console.log(currentDate() + " Ad event: mute"));
+            vastTracker.on('unmute', () => console.log(currentDate() + " Ad event: unmute"));
+            vastTracker.on('fullscreen', () => console.log(currentDate() + " Ad event: fullscreen"));
+            vastTracker.on('exitFullscreen', () => console.log(currentDate() + " Ad event: exitFullscreen"));
+            vastTracker.on('clickthrough', url => console.log(currentDate() + " Ad event: click"));
+            vastTracker.on('creativeView', () => {
                 console.log(currentDate() + " Ad event: impression");
                 console.log(currentDate() + " Ad event: creativeView");
             });
-            vastTracker.on('mute', function () {
-                console.log(currentDate() + " Ad event: mute");
-            });
 
-            vastTracker.on('unmute', function () {
-                console.log(currentDate() + " Ad event: unmute");
-            });
-            vastTracker.on('fullscreen', function() {
-                console.log(currentDate() + " Ad event: fullscreen");
-            });
+            // parse seconds for progress-\d* events
+            for (let k in vastTracker.trackingEvents) {
+                let re = /progress-\d*/;
+                if (!k.search(re)) {
+                    progressEventsSeconds.push(parseInt(k.split('-')[1]));
+                }
+            }
 
-            vastTracker.on('exitFullscreen', function() {
-                console.log(currentDate() + " Ad event: exitFullscreen");
-            });
-
+            progressEventsSeconds.sort((a, b) => a - b);
             playlist = [
                 {
                     source: adObject.adMediaFile,
@@ -197,7 +181,9 @@ _visibilityAPI.setHandler(function () {
 let adPlugin = Clappr.UIContainerPlugin.extend({
     name: 'ad_plugin',
     AdMuted: false,
-    initialize: function initialize() {
+    videoWasCompleted: false,
+
+initialize: function initialize() {
         this.render();
         this.checkAdTime();
     },
@@ -224,6 +210,7 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
         }
     },
 
+    // VAST-events - firstQuartile, midpoint, thirdQuartile, progress
     checkAdTime: function () {
         if (adVideoPlayNow) {
             let fq = false, mp = false, tq = false;
@@ -231,6 +218,11 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
                 if (skipButtonPressed) {
                     clearInterval(timerId);
                 } else {
+                    // if (progressEventsSeconds.length) {
+                    if (progressEventsSeconds.length && p.getCurrentTime() >= progressEventsSeconds[0]) {
+                        vastTracker.setProgress(progressEventsSeconds.shift());
+                    }
+                    // }
                     if (p.getCurrentTime() >= p.getDuration() * 0.25 && !fq) {
                         vastTracker.setProgress(p.getCurrentTime());
                         fq = true;
@@ -274,8 +266,9 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
             if (adVideoPlayNow) {
                 if (firstStart) {
                     p.setVolume(100);
+                    vastTracker.setDuration(p.getDuration());
                     vastTracker.load();
-                    vastTracker.setProgress(1);
+                    vastTracker.setProgress(0.1);
                     firstStart = false;
                     if (isFullscreen) {
                         vastTracker.setFullscreen(isFullscreen);
@@ -285,8 +278,8 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
                 }
             }
 
-            if (videoWasCompleted) {
-                videoWasCompleted = false;
+            if (this.videoWasCompleted) {
+                this.videoWasCompleted = false;
                 loadVAST(vastUrl, mainVideo).then(function () {
                     self.initPlayerFor('ad');
                 });
@@ -294,8 +287,9 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
         } else if (pauseroll) {
             if (adVideoPlayNow)
                 if (p.getCurrentTime() == 0) {
+                    vastTracker.setDuration(p.getDuration());
                     vastTracker.load();
-                    vastTracker.setProgress(1);
+                    vastTracker.setProgress(0.1);
                     if (isFullscreen) {
                         vastTracker.setFullscreen(isFullscreen);
                     }
@@ -321,11 +315,12 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
     },
 
     containerEnded: function () {
+        let self = this;
         if (adVideoPlayNow) {
             vastTracker.complete();
             this.initPlayerFor('video');
         } else if (!adVideoPlayNow && preroll) {
-            videoWasCompleted = true;
+            self.videoWasCompleted = true;
             firstStart = true;
         }
     },
@@ -345,21 +340,16 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
     },
 
     ContainerClick: function () {
-        if (preroll) {
-            if (adVideoPlayNow) {
-                window.open(adObject.clickLink).focus();
-            }
-        } else if (pauseroll) {
-            if (adVideoPlayNow) {
-                window.open(adObject.clickLink).focus();
-            } else if (getVideo().typeVideo == 'live') {
-                p.pause();
-            }
+        if (adVideoPlayNow) {
+            window.open(adObject.clickLink).focus();
+            vastTracker.click();
+        } else if (!adVideoPlayNow && pauseroll && getVideo().typeVideo == 'live') {
+            p.pause();
         }
     },
 
     show: function () {
-        // console.log('show called');
+        console.log('show called');
         const showAdButton = () => {
             this.$el.show();
             let timerId = setInterval(() => {
@@ -391,13 +381,12 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
     },
 
     hide: function () {
-        // console.log('hide called');
+        console.log('hide called');
         this.$el.hide();
     },
 
     render: function render() {
         // console.log('render called');
-
         this.$el.css('font-size', '20px');
         this.$el.css('position', 'absolute');
         this.$el.css('color', 'white');
