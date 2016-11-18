@@ -9,7 +9,7 @@
             <Impression><![CDATA[http://localhost:8808/ad-event/impression]]></Impression>
             <Creatives>
                 <Creative id="57860459056" sequence="1">
-                    <Linear skipoffset="00:00:05">
+                    <Linear skipoffset="00:00:06.66">
                         <Duration>00:00:10</Duration>
                         <TrackingEvents>
                             <Tracking event="start"><![CDATA[http://localhost:8808/ad-event/start]]></Tracking>

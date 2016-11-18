@@ -5,8 +5,6 @@
 // TODO live pauseroll?
 
 // common
-// TODO VAST events
-// TODO test VAST real examples
 
 let adVideoPlayNow = false;
 let p = '';
@@ -22,7 +20,6 @@ let pauseroll = false;
 let skipButtonPressed = false;
 let isFullscreen = false;
 let progressEventsSeconds = [];
-let isVPAID = false;
 
 adObject.adMediaFile = '';
 
@@ -76,6 +73,9 @@ const fsEventOn = () => {
 const loadVAST = (urlVast, video) => {
     return new Promise(function (resolve, rejected) {
         DMVAST.client.get(urlVast, function (r, e) {
+            if (!r) {
+                rejected('Error loading VAST - WTF ¯\\\_(ツ)_/¯');
+            }
             console.log(r);
 
             // console.log(r.ads[0].creatives[0].mediaFiles);
@@ -84,8 +84,9 @@ const loadVAST = (urlVast, video) => {
             // console.log(r.ads[0].creatives[0].mediaFiles[0].fileURL);
             // console.log(r.ads[0].creatives[0].type);
 
+            // console.log('skip delay = ' + r.ads[0].creatives[0].skipDelay);
+
             adObject.adMediaFile = r.ads[0].creatives[0].mediaFiles[0].fileURL;
-            adObject.skipDelay = r.ads[0].creatives[0].skipDelay;
             adObject.clickLink = r.ads[0].creatives[0].videoClickThroughURLTemplate;
 
             vastTracker = new DMVAST.tracker(r.ads[0], r.ads[0].creatives[0]);
@@ -114,12 +115,51 @@ const loadVAST = (urlVast, video) => {
                 console.log(currentDate() + " Ad event: creativeView");
             });
 
-            // parse seconds for progress-\d* events
+            // parsing seconds for progress-\d* events
             for (let k in vastTracker.trackingEvents) {
                 let re = /progress-\d*/;
                 if (!k.search(re)) {
                     progressEventsSeconds.push(parseInt(k.split('-')[1]));
                 }
+            }
+
+            // parsing extensions
+            const setSkipDelay = sd => {
+                if (!sd || sd >= r.ads[0].creatives[0].duration || sd < 0) {
+                    adObject.skipDelay = r.ads[0].creatives[0].duration / 2;
+                } else {
+                    adObject.skipDelay = sd;
+                }
+            };
+            let st2f = false;
+            for (let w in r.ads[0].extensions) {
+                if (r.ads[0].extensions[w].attributes.type == 'skipTime2' && !st2f) {
+                    const prsDrExtnsn = durationString => {
+                        let durationComponents, minutes, seconds, secondsAndMS;
+                        if (!(durationString != null)) {
+                            return null;
+                        }
+                        durationComponents = durationString.split(":");
+                        if (durationComponents.length !== 2) {
+                            return null;
+                        }
+                        secondsAndMS = durationComponents[1].split(".");
+                        seconds = parseInt(secondsAndMS[0]);
+                        if (secondsAndMS.length === 2) {
+                            seconds += parseFloat("0." + secondsAndMS[1]);
+                        }
+                        minutes = parseInt(durationComponents[0] * 60);
+                        if (isNaN(minutes || isNaN(seconds || minutes > 60 * 60 || seconds > 60))) {
+                            return null;
+                        }
+                        return minutes + seconds;
+                    };
+                    setSkipDelay(prsDrExtnsn(r.ads[0].extensions[w].children[0].value));
+                    st2f = true;
+                }
+            }
+            if (!st2f) {
+                setSkipDelay(r.ads[0].creatives[0].skipDelay);
             }
 
             progressEventsSeconds.sort((a, b) => a - b);
@@ -136,11 +176,9 @@ const loadVAST = (urlVast, video) => {
             ];
 
             if (r.ads[0].creatives[0].mediaFiles[0].apiFramework == 'VPAID') {
-                console.log('VPAID, skipping');
-                isVPAID = true;
+                rejected('Error loading VAST - VPAID not supported');
             }
             resolve();
-            console.log('vast loaded');
         });
     });
 };
@@ -189,7 +227,7 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
     AdMuted: false,
     videoWasCompleted: false,
 
-initialize: function initialize() {
+    initialize: function initialize() {
         this.render();
         this.checkAdTime();
     },
@@ -286,9 +324,7 @@ initialize: function initialize() {
 
             if (this.videoWasCompleted) {
                 this.videoWasCompleted = false;
-                loadVAST(vastUrl, mainVideo).then(function () {
-                    self.initPlayerFor('ad');
-                });
+                loadVAST(vastUrl, mainVideo).then(() => self.initPlayerFor('ad'));
             }
         } else if (pauseroll) {
             if (adVideoPlayNow)
@@ -306,9 +342,7 @@ initialize: function initialize() {
                 if (getVideo().typeVideo == 'vod') {
                     vct = p.getCurrentTime();
                 }
-                loadVAST(vastUrl, mainVideo).then(function () {
-                    self.initPlayerFor('ad');
-                });
+                loadVAST(vastUrl, mainVideo).then(() => self.initPlayerFor('ad'));
             }
             pauseNow = false;
             adVideoPlayNow = p.options.sources[0] != getVideo().source;
