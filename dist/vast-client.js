@@ -1724,6 +1724,7 @@ XHRURLHandler = (function() {
       xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
+            console.log(xhr.responseXML);
             return cb(null, xhr.responseXML);
           } else {
             return cb(new Error("XHRURLHandler: " + xhr.statusText));

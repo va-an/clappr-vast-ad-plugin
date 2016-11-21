@@ -1,0 +1,264 @@
+<VAST xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0" xsi:noNamespaceSchemaLocation="http://specs.adfox.ru/uploads/vast.xsd">
+    <Ad id="1549430">
+        <InLine>
+            <AdSystem version="1.0">AdFox IMHO Vi</AdSystem>
+            <AdTitle>VAST Ad</AdTitle>
+            <Error>
+                <![CDATA[
+http://v.adfox.ru/226279/event?rand=faamcwr&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=2c330c316f9123f9&pm=u&eid1=6836:8676371:148598377
+]]>
+            </Error>
+            <Impression>
+                <![CDATA[
+http://v.adfox.ru/226279/event?rand=xtztoz&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=2ad8e3c1bb4c967b&pm=b&eid1=6836:8676371:148598377
+]]>
+            </Impression>
+            <Impression>
+                <![CDATA[ http://asg.vidigital.ru/1/5295/c/v/2?i=[random] ]]>
+            </Impression>
+            <Impression>
+                <![CDATA[ http://asg.vidigital.ru/1/5296/c/v/2?i=[random] ]]>
+            </Impression>
+            <Impression>
+                <![CDATA[ ]]>
+            </Impression>
+            <Impression>
+                <![CDATA[ ]]>
+            </Impression>
+            <Impression>
+                <![CDATA[
+https://www.tns-counter.ru/V13a****vitpc_ad/ru/CP1251/tmsec=vitpc_monitoring-1/1567352730
+]]>
+            </Impression>
+            <Impression>
+                <![CDATA[
+https://www.tns-counter.ru/V13a****vitpc_ad/ru/CP1251/tmsec=vitpc_counter-/1567352730
+]]>
+            </Impression>
+            <Impression>
+                <![CDATA[
+https://www.tns-counter.ru/V13a****vitpc_ad/ru/CP1251/tmsec=vitpc_video-37520/1567352730
+]]>
+            </Impression>
+            <Impression>
+                <![CDATA[
+https://imho.solution.weborama.fr/fcgi-bin/dispatch.fcgi?a.A=im&a.si=3558&a.te=6&a.he=1&a.wi=1&a.hr=p&a.ra=1567352730
+]]>
+            </Impression>
+            <Creatives>
+                <Creative id="1549430/508402">
+                    <Linear>
+                        <Duration>00:00:25</Duration>
+                        <TrackingEvents>
+                            <Tracking event="creativeView">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=etxakqa&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=3f22a22e6df40023&pm=c&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                            <Tracking event="start">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=furwsty&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=6327a0406c571dcb&pm=d&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                            <Tracking event="midpoint">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=bakodak&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=7f726221af3a176d&pm=f&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                            <Tracking event="firstQuartile">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=byxqyfg&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=db160b92d88f7bc7&pm=e&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                            <Tracking event="thirdQuartile">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=ghsefub&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=6d58874db65e1773&pm=g&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                            <Tracking event="complete">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=euhsmcn&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=60b593a44d72fccf&pm=h&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                            <Tracking event="mute">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=fxavqvk&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=91666fd1abeeac47&pm=i&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                            <Tracking event="unmute">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=qjhtzk&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=ae42e71a9c6422fd&pm=j&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                            <Tracking event="pause">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=nceldz&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=8ba88a19a3240757&pm=k&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                            <Tracking event="rewind">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=bfkmmio&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=5c4bb7a30af42d34&pm=l&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                            <Tracking event="resume">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=gkqzurj&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=d65b8f0efa43ae03&pm=m&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                            <Tracking event="fullscreen">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=fbizyz&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=5d42434b7627ab32&pm=n&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                            <Tracking event="expand">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=ebtxfjb&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=4e44ad14f81886a7&pm=o&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                            <Tracking event="collapse">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=bbpurji&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=95a8a2ea892a6dc5&pm=p&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                            <Tracking event="acceptInvitation">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=cjcyado&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=4636d5e5cfa345e0&pm=q&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                            <Tracking event="close">
+                                <![CDATA[
+http://v.adfox.ru/226279/event?rand=eldhcce&p2=eyit&p5=dkebm&p1=bthvv&pr=mneqcf&puid6=1&lts=euodrjr&puid20=999999999&puid30=6836&hash=e80afdc4d9fcf128&pm=r&eid1=6836:8676371:148598377
+]]>
+                            </Tracking>
+                        </TrackingEvents>
+                        <VideoClicks></VideoClicks>
+                        <MediaFiles>
+                            <MediaFile id="1" delivery="progressive" type="video/mp4" bitrate="512" maintainAspectRatio="false" scalable="true" width="640" height="360">
+                                <![CDATA[
+http://cdn.vidigital.ru/media/m/MONDELEZ_INTERNATIONAL/2014/Jacobs_Monarch_MILLICANO_Nov-Dec14/imho_Jacobs_Milicano_25sec.mp4
+]]>
+                            </MediaFile>
+                        </MediaFiles>
+                    </Linear>
+                </Creative>
+            </Creatives>
+            <Extensions>
+                <Extension type="Urlmod" scope="" method="" final="false">
+                    <urlpart>
+                        <![CDATA[ ]]>
+                    </urlpart>
+                </Extension>
+                <Extension type="CustomTracking">
+                    <Tracking event="onVastLoad">
+                        <![CDATA[
+https://www.tns-counter.ru/V13a****vitpc_ad/ru/CP1251/tmsec=vitpc_monitoring-1/1567352730
+]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[
+https://www.tns-counter.ru/V13a****vitpc_ad/ru/CP1251/tmsec=vitpc_counter-/1567352730
+]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[
+https://www.tns-counter.ru/V13a****vitpc_ad/ru/CP1251/tmsec=vitpc_video-37520/1567352730
+]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[
+https://www.tns-counter.ru/V13a****vitpc_ad/ru/CP1251/tmsec=vitpc_genre-/1567352730
+]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[
+https://www.tns-counter.ru/V13a****vitpc_ad/ru/CP1251/tmsec=vitpc_genre-/1567352730
+]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[
+https://www.tns-counter.ru/V13a****vitpc_ad/ru/CP1251/tmsec=vitpc_genre-/1567352730
+]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[
+https://www.tns-counter.ru/V13a****vitpc_ad/ru/CP1251/tmsec=vitpc_genre-/1567352730
+]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[
+https://www.tns-counter.ru/V13a****vitpc_ad/ru/CP1251/tmsec=vitpc_genre-/1567352730
+]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[
+https://imho.solution.weborama.fr/fcgi-bin/dispatch.fcgi?a.A=im&a.si=3558&a.te=6&a.he=1&a.wi=1&a.hr=p&a.ra=1567352730
+]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-1]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-2]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-3]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-1]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-2]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-3]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-1]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-2]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-3]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-1]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-2]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-3]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-1]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-2]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-3]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-1]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-2]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-3]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-1]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-2]]>
+                    </Tracking>
+                    <Tracking event="onVastLoad">
+                        <![CDATA[http://localhost:8808/ad-event/custom-33]]>
+                    </Tracking>
+                </Extension>
+            </Extensions>
+        </InLine>
+    </Ad>
+</VAST>

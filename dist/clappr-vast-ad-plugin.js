@@ -110,6 +110,10 @@ var fsEventOn = function fsEventOn() {
         isFullscreen = !isFullscreen;
         if (adVideoPlayNow) {
             vastTracker.setFullscreen(isFullscreen);
+            // isFullscreen ?
+            //     vastTracker.trackURLs(r.ads[0].creatives[0].trackingEvents['expand']) :
+            //     vastTracker.trackURLs(r.ads[0].creatives[0].trackingEvents['collapse']);
+            vastTracker.setExpand(isFullscreen);
         }
     });
 };
@@ -121,6 +125,8 @@ var loadVAST = function loadVAST(urlVast, video) {
                 rejected('Error loading VAST - WTF ¯\\\_(ツ)_/¯');
             }
             console.log(r);
+            // console.log(r.ads[0].creatives[0].trackingEvents.fullscreen[0]);
+            // console.log(r.ads[0].creatives[0].trackingEvents.expand[0]);
 
             // console.log(r.ads[0].creatives[0].mediaFiles);
             // console.log(r.ads[0].creatives[0].mediaFiles[0]);
@@ -134,6 +140,15 @@ var loadVAST = function loadVAST(urlVast, video) {
             adObject.clickLink = r.ads[0].creatives[0].videoClickThroughURLTemplate;
 
             vastTracker = new DMVAST.tracker(r.ads[0], r.ads[0].creatives[0]);
+
+            // for vast-events: expand, collapse
+            vastTracker.emitAlwaysEvents.push('expand');
+            vastTracker.emitAlwaysEvents.push('collapse');
+            vastTracker.setExpand = function (fullscreen) {
+                this.track(fullscreen ? "expand" : "collapse");
+                return this.fullscreen = fullscreen;
+            };
+
             // console.log(vastTracker);
 
             var currentDate = function currentDate() {
@@ -202,8 +217,9 @@ var loadVAST = function loadVAST(urlVast, video) {
                 }
             };
             var st2f = false;
+            var customURLs = [];
             for (var w in r.ads[0].extensions) {
-                if (r.ads[0].extensions[w].attributes.type == 'skipTime2' && !st2f) {
+                if (r.ads[0].extensions[w].attributes.type.toLowerCase() == 'skiptime2' && !st2f) {
                     var prsDrExtnsn = function prsDrExtnsn(durationString) {
                         var durationComponents = void 0,
                             minutes = void 0,
@@ -229,6 +245,12 @@ var loadVAST = function loadVAST(urlVast, video) {
                     };
                     setSkipDelay(prsDrExtnsn(r.ads[0].extensions[w].children[0].value));
                     st2f = true;
+                } else if (r.ads[0].extensions[w].attributes.type.toLowerCase() == 'customtracking') {
+                    for (var z in r.ads[0].extensions[w].children) {
+                        // console.log(r.ads[0].extensions[w].children[z].value.trim());
+                        customURLs.push(r.ads[0].extensions[w].children[z].value);
+                    }
+                    vastTracker.trackURLs(customURLs);
                 }
             }
             if (!st2f) {
@@ -382,6 +404,14 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
         var self = this;
         // console.log('play called');
         p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
+        if (adVideoPlayNow) {
+            if (isFullscreen) {
+                vastTracker.setFullscreen(true);
+                vastTracker.setExpand(true);
+                // vastTracker.trackURLs(r.ads[0].creatives[0].trackingEvents['expand']);
+            }
+        }
+
         if (preroll) {
             if (adVideoPlayNow) {
                 if (firstStart) {
@@ -390,9 +420,6 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
                     vastTracker.load();
                     vastTracker.setProgress(0.1);
                     firstStart = false;
-                    if (isFullscreen) {
-                        vastTracker.setFullscreen(isFullscreen);
-                    }
                 } else {
                     vastTracker.setPaused(false);
                 }
@@ -409,9 +436,6 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
                 vastTracker.setDuration(p.getDuration());
                 vastTracker.load();
                 vastTracker.setProgress(0.1);
-                if (isFullscreen) {
-                    vastTracker.setFullscreen(isFullscreen);
-                }
             } else {
                 vastTracker.setPaused(false);
             }
