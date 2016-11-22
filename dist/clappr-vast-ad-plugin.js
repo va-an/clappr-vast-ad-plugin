@@ -39,69 +39,67 @@ var setVideoType = function setVideoType(type) {
     typeVideo = type;
 };
 
-var getVideo = function getVideo() {
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
+var getSource = function getSource(type) {
+    if (type == 'video') {
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
 
-    try {
-        for (var _iterator = playlist[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var z = _step.value;
-
-            if (!z.ad) {
-                return z;
-            }
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
         try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
+            for (var _iterator = playlist[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var z = _step.value;
+
+                if (!z.ad) {
+                    return z;
+                }
             }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
         } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
+            try {
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                    _iterator.return();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
             }
         }
-    }
-};
+    } else if (type == 'ad') {
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
 
-var getAd = function getAd() {
-    var _iteratorNormalCompletion2 = true;
-    var _didIteratorError2 = false;
-    var _iteratorError2 = undefined;
-
-    try {
-        for (var _iterator2 = playlist[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var z = _step2.value;
-
-            if (z.ad) {
-                return z;
-            }
-        }
-    } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-    } finally {
         try {
-            if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                _iterator2.return();
+            for (var _iterator2 = playlist[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                var _z = _step2.value;
+
+                if (_z.ad) {
+                    return _z;
+                }
             }
+        } catch (err) {
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
         } finally {
-            if (_didIteratorError2) {
-                throw _iteratorError2;
+            try {
+                if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                    _iterator2.return();
+                }
+            } finally {
+                if (_didIteratorError2) {
+                    throw _iteratorError2;
+                }
             }
         }
-    }
-};
-
-var getSource = function getSource() {
-    if (preroll) {
-        return getAd().source;
-    } else if (pauseroll) {
-        return getVideo().source;
+    } else if (type == null) {
+        if (preroll) {
+            return getSource('ad');
+        } else if (pauseroll) {
+            return getSource('video');
+        }
     }
 };
 
@@ -125,6 +123,13 @@ var loadVAST = function loadVAST(urlVast, video) {
                 rejected('Error loading VAST - WTF ¯\\\_(ツ)_/¯');
             }
             console.log(r);
+
+            // use 'close' instead 'skip', if there is 'close' and there is no 'skip'
+            if (!r.ads[0].creatives[0].trackingEvents['skip'] && r.ads[0].creatives[0].trackingEvents['close']) {
+                r.ads[0].creatives[0].trackingEvents['skip'] = r.ads[0].creatives[0].trackingEvents['close'];
+                delete r.ads[0].creatives[0].trackingEvents['close'];
+            }
+
             // console.log(r.ads[0].creatives[0].trackingEvents.fullscreen[0]);
             // console.log(r.ads[0].creatives[0].trackingEvents.expand[0]);
 
@@ -141,21 +146,20 @@ var loadVAST = function loadVAST(urlVast, video) {
 
             vastTracker = new DMVAST.tracker(r.ads[0], r.ads[0].creatives[0]);
 
-            // for vast-events: expand, collapse
-            vastTracker.emitAlwaysEvents.push('expand');
-            vastTracker.emitAlwaysEvents.push('collapse');
-            vastTracker.setExpand = function (fullscreen) {
-                this.track(fullscreen ? "expand" : "collapse");
-                return this.fullscreen = fullscreen;
-            };
-
-            // console.log(vastTracker);
-
             var currentDate = function currentDate() {
                 var d = new Date();
                 return "(" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ") ";
             };
 
+            // for vast-events: expand, collapse
+            vastTracker.emitAlwaysEvents.push('expand');
+            vastTracker.emitAlwaysEvents.push('collapse');
+            vastTracker.setExpand = function (fullscreen) {
+                console.log(currentDate() + " Ad event: " + (fullscreen ? "expand" : "collapse"));
+                this.track(fullscreen ? "expand" : "collapse");
+            };
+
+            // console.log(vastTracker);
             vastTracker.on('start', function () {
                 return console.log(currentDate() + " Ad event: start");
             });
@@ -250,6 +254,7 @@ var loadVAST = function loadVAST(urlVast, video) {
                         // console.log(r.ads[0].extensions[w].children[z].value.trim());
                         customURLs.push(r.ads[0].extensions[w].children[z].value);
                     }
+                    console.log(currentDate() + " Ad event: CustomTracking");
                     vastTracker.trackURLs(customURLs);
                 }
             }
@@ -387,14 +392,14 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
             // console.log('ipfv');
             adVideoPlayNow = false;
             pauseNow = false;
-            p.load(getVideo().source);
-            if (getVideo().typeVideo == 'vod') {
+            p.load(getSource('video').source);
+            if (getSource('video').typeVideo == 'vod') {
                 p.seek(vct);
             }
         } else if (type == 'ad') {
             // console.log('ipfa');
             adVideoPlayNow = true;
-            p.load(getAd().source);
+            p.load(getSource('ad').source);
             p.setVolume(100);
             skipButtonPressed = false;
         }
@@ -440,7 +445,7 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
                 vastTracker.setPaused(false);
             }
             if (!adVideoPlayNow && !firstStart && pauseNow && p.getCurrentTime() != 0) {
-                if (getVideo().typeVideo == 'vod') {
+                if (getSource('video').typeVideo == 'vod') {
                     vct = p.getCurrentTime();
                 }
                 loadVAST(vastUrl, mainVideo).then(function () {
@@ -448,7 +453,7 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
                 });
             }
             pauseNow = false;
-            adVideoPlayNow = p.options.sources[0] != getVideo().source;
+            adVideoPlayNow = p.options.sources[0] != getSource('video').source;
             if (adVideoPlayNow) {
                 this.show();
             } else {
@@ -484,7 +489,7 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
         if (adVideoPlayNow) {
             window.open(adObject.clickLink).focus();
             vastTracker.click();
-        } else if (!adVideoPlayNow && pauseroll && getVideo().typeVideo == 'live') {
+        } else if (!adVideoPlayNow && pauseroll && getSource('video').typeVideo == 'live') {
             p.pause();
         }
     },
@@ -502,7 +507,7 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
                     clearInterval(timerId);
                     ab.onclick = function () {
                         skipButtonPressed = true;
-                        console.log('ab onclick');
+                        // console.log('ab onclick');
                         vastTracker.skip();
                         _this.initPlayerFor('video');
                     };
