@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>real demo</title>
+    <!--<script src="http://cdn.clappr.io/latest/clappr.min.js"></script>-->
+    <script src="../dist/clappr.min.cdnvideo.repo.js"></script>
+    <script src="../dist/vast-client.js"></script>
+    <!--<script src="../dist/clappr-vast-ad-plugin.js"></script>-->
+    <script src="../dist/cvap.js"></script>
+    <link rel="icon" href="data:;base64,=">
+</head>
+<body>
+<div id="player"></div>
+<script>
+    var mainVideo = 'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4';
+    setVideoType('vod');
+
+    var vastUrl = 'http://localhost:8808/src/vast-example.xml';
+    setTypeAd('pauseroll');
+    //    setTypeAd('preroll');
+
+    var player = {
+        height: 360,
+        width: 640,
+        hideMediaControl: false,
+        parentId: "#player",
+        autoPlay: true,
+        exitFullscreenOnEnd: false,
+        plugins: [adPlugin],
+    };
+
+    cnfPlr = function () {
+        if (preroll) {
+            // something
+        } else if (pauseroll) {
+            player.source = mainVideo;
+            p = new Clappr.Player(player);
+            fsEventOn();
+        }
+    };
+
+    cnfPlr();
+</script>
+</body>
+</html>

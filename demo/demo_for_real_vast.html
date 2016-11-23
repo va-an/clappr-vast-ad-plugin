@@ -23,32 +23,53 @@
     //    var vastUrl = 'http://localhost:8808/src/vast-example.xml';
     var vastUrl = 'http://v.adfox.ru/226279/getCode?pp=efi&ps=cdnc&p2=eyit&pfc=a&pfb=a&plp=a&pli=a&pop=a&pct=b&puid6=1&puid20=999999999&puid30=6836&pr=148598377&random=19837&eid1=6836:8676371:148598377&dl=http://cdn/vgtrk/default/';
     //        var vastUrl = 'http://localhost:8808/src/vast_real.xml';
-    //        setTypeAd('pauseroll');
-    setTypeAd('preroll');
 
-    function clapprConfig(VASTloaded) {
-        var conf = {
-            height: 360,
-            width: 640,
-            hideMediaControl: false,
-            parentId: "#player",
-            autoPlay: true,
-            exitFullscreenOnEnd: false,
-        };
-        VASTloaded ? conf.source = getSource().source : conf.source = mainVideo;
-        VASTloaded ? conf.plugins = [adPlugin] : '';
-        return conf;
+    setTypeAd('pauseroll');
+//    setTypeAd('preroll');
+
+    var player = {
+        height: 360,
+        width: 640,
+        hideMediaControl: false,
+        parentId: "#player",
+        autoPlay: true,
+        exitFullscreenOnEnd: false,
+        plugins: [adPlugin],
+    };
+
+    function cnfPlr() {
+        if (preroll) {
+        } else if (pauseroll) {
+            player.source = mainVideo;
+            p = new Clappr.Player(player);
+        }
     }
 
-    loadVAST(vastUrl, mainVideo).then(function () {
-                p = new Clappr.Player(clapprConfig(true));
-                fsEventOn();
-            },
-            function (msg) {
-                console.log(msg);
-                p = new Clappr.Player(clapprConfig(false));
-            }
-    );
+    cnfPlr();
+
+//    function clapprConfig(VASTloaded) {
+//        var conf = {
+//            height: 360,
+//            width: 640,
+//            hideMediaControl: false,
+//            parentId: "#player",
+//            autoPlay: true,
+//            exitFullscreenOnEnd: false,
+//        };
+//        VASTloaded ? conf.source = getSource().source : conf.source = mainVideo;
+//        VASTloaded ? conf.plugins = [adPlugin] : '';
+//        return conf;
+//    }
+
+//    loadVAST(vastUrl, mainVideo).then(function () {
+//                p = new Clappr.Player(clapprConfig(true));
+//                fsEventOn();
+//            },
+//            function (msg) {
+//                console.log(msg);
+//                p = new Clappr.Player(clapprConfig(false));
+//            }
+//    );
 </script>
 </body>
 </html>
