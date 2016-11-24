@@ -1,13 +1,5 @@
 'use strict';
 
-// preroll
-
-// pauseroll
-// TODO how detect - live or vod?
-// TODO live pauseroll?
-
-// common
-
 var adVideoPlayNow = false;
 var p = '';
 var playlist = [];
@@ -20,8 +12,54 @@ var pauseNow = false;
 var firstStart = true;
 var vastTracker = '';
 var progressEventsSeconds = [];
+var customURLs = [];
+var skipButtonPressed = false;
+var adFirstStart = '';
+var vct = '';
 
 adObject.adMediaFile = '';
+
+var _visibilityAPI = function () {
+    var stateKey,
+        eventKey,
+        keys = {
+        hidden: "visibilitychange",
+        webkitHidden: "webkitvisibilitychange",
+        mozHidden: "mozvisibilitychange",
+        msHidden: "msvisibilitychange"
+    };
+    for (stateKey in keys) {
+        if (stateKey in document) {
+            eventKey = keys[stateKey];
+            break;
+        }
+    }
+    return {
+        'setHandler': function setHandler(c) {
+            if (c) document.addEventListener(eventKey, c);
+        },
+        'tabVisible': function tabVisible() {
+            return !document[stateKey];
+        }
+    };
+}();
+
+_visibilityAPI.setHandler(function () {
+    if (adVideoPlayNow) {
+        if (_visibilityAPI.tabVisible()) {
+            setTimeout(function () {
+                p.play();
+            }, 300);
+        } else {
+            p.pause();
+        }
+    }
+});
+
+var currentDate = function currentDate() {
+    var d = new Date();
+    return "(" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ") ";
+};
 
 var getSource = function getSource(type) {
     if (type == 'video') {
@@ -99,6 +137,14 @@ var setTypeAd = function setTypeAd(type) {
 
 var setVideoType = function setVideoType(type) {
     typeVideo = type;
+    playlist = [{
+        source: '',
+        ad: true
+    }, {
+        source: mainVideo,
+        ad: false,
+        typeVideo: type
+    }];
 };
 
 var fsEventOn = function fsEventOn() {
@@ -143,11 +189,6 @@ var loadVAST = function loadVAST(urlVast, video) {
             adObject.clickLink = r.ads[0].creatives[0].videoClickThroughURLTemplate;
 
             vastTracker = new DMVAST.tracker(r.ads[0], r.ads[0].creatives[0]);
-
-            var currentDate = function currentDate() {
-                var d = new Date();
-                return "(" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ") ";
-            };
 
             // for vast-events: expand, collapse
             vastTracker.emitAlwaysEvents.push('expand');
@@ -219,7 +260,6 @@ var loadVAST = function loadVAST(urlVast, video) {
                 }
             };
             var st2f = false;
-            var customURLs = [];
             for (var w in r.ads[0].extensions) {
                 if (r.ads[0].extensions[w].attributes.type.toLowerCase() == 'skiptime2' && !st2f) {
                     var prsDrExtnsn = function prsDrExtnsn(durationString) {
@@ -261,14 +301,7 @@ var loadVAST = function loadVAST(urlVast, video) {
             progressEventsSeconds.sort(function (a, b) {
                 return a - b;
             });
-            playlist = [{
-                source: adObject.adMediaFile,
-                ad: true
-            }, {
-                source: video,
-                ad: false,
-                typeVideo: typeVideo
-            }];
+            getSource('ad').source = adObject.adMediaFile;
 
             if (r.ads[0].creatives[0].mediaFiles[0].apiFramework == 'VPAID') {
                 rejected('Error loading VAST - VPAID not supported');
@@ -280,26 +313,91 @@ var loadVAST = function loadVAST(urlVast, video) {
 
 var adPlugin = Clappr.UIContainerPlugin.extend({
     name: 'ad_plugin',
+    videoWasCompleted: false,
 
     initialize: function initialize() {
         this.render();
+        this.checkAdTime();
     },
 
     bindEvents: function bindEvents() {
         this.listenTo(this.container, Clappr.Events.CONTAINER_PAUSE, this.containerPause);
         this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.containerPlay);
         this.listenTo(this.container, Clappr.Events.CONTAINER_ENDED, this.containerEnded);
+        this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.ContainerClick);
     },
 
-    show: function show() {},
+    show: function show() {
+        var _this = this;
 
-    hide: function hide() {},
+        // console.log('show called');
+        var showAdButton = function showAdButton() {
+            _this.$el.show();
+            var timerId = setInterval(function () {
+                var ab = document.getElementById('adButton');
+                ab.textContent = 'You can skip this ad in ' + parseInt(adObject.skipDelay - p.getCurrentTime());
+                if (p.getCurrentTime() > adObject.skipDelay) {
+                    clearInterval(timerId);
+                    ab.onclick = function () {
+                        skipButtonPressed = true;
+                        // console.log('ab onclick');
+                        vastTracker.skip();
+                        _this.initPlayerFor('video');
+                    };
+                    ab.textContent = 'Skip Ad';
+                    // console.log('time to skip ad!');
+                }
+            }, 300);
+        };
+        if (preroll) {
+            if (adVideoPlayNow) {
+                showAdButton();
+            } else {
+                this.hide();
+            }
+        } else if (pauseroll) {
+            showAdButton();
+        }
+        // console.log('show called');
+    },
+
+    hide: function hide() {
+        this.$el.hide();
+    },
 
     render: function render() {
+        // console.log('render called');
+        this.$el.css('font-size', '20px');
+        this.$el.css('position', 'absolute');
+        this.$el.css('color', 'white');
+        this.$el.css('top', '70%');
+        this.$el.css('right', '0%');
+        this.$el.css('background-color', 'black');
+        this.$el.css('z-index', '100500');
+        this.$el.css('border', 'solid 3px #333333');
+        this.$el.css('padding', '5px');
+        this.container.$el.append(this.$el);
+        this.$el[0].id = 'adButton';
+
+        if (preroll) {
+            this.show();
+        } else if (pauseroll) {
+            if (adVideoPlayNow) {
+                // console.log('render - show');
+                this.show();
+            } else {
+                this.hide();
+                // console.log('render - hide');
+            }
+        }
+        // this.$el.html('pew pew pew');
         return this;
     },
 
     containerPause: function containerPause() {
+        if (adVideoPlayNow && !p.ended) {
+            vastTracker.setPaused(true);
+        }
         // not activate 'play' event when pause
         if (!adVideoPlayNow) {
             pauseNow = true;
@@ -308,16 +406,39 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
     },
 
     containerPlay: function containerPlay() {
+        p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
         var self = this;
         // console.log('play');
-        if (adVideoPlayNow) {
+        if (adVideoPlayNow && adFirstStart) {
             vastTracker.trackURLs(customURLs);
+            adFirstStart = false;
             console.log(currentDate() + " Ad event: CustomTracking");
         }
 
-        if (preroll) {} else if (pauseroll) {
+        if (preroll) {
+            if (adVideoPlayNow) {
+                if (firstStart) {
+                    p.setVolume(100);
+                    vastTracker.setDuration(p.getDuration());
+                    vastTracker.load();
+                    vastTracker.setProgress(0.1);
+                    firstStart = false;
+                } else {
+                    vastTracker.setPaused(false);
+                }
+            }
+            if (this.videoWasCompleted) {
+                this.videoWasCompleted = false;
+                loadVAST(vastUrl, mainVideo).then(function () {
+                    return self.initPlayerFor('ad');
+                });
+            }
+        } else if (pauseroll) {
             if (!adVideoPlayNow && pauseNow && !firstStart) {
                 pauseNow = false;
+                if (getSource('video').typeVideo == 'vod') {
+                    vct = p.getCurrentTime();
+                }
                 // loadVAST(vastUrl, mainVideo).then(() => console.log('play ad'));
                 loadVAST(vastUrl, mainVideo).then(function () {
                     return self.initPlayerFor('ad');
@@ -329,6 +450,23 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
 
     containerEnded: function containerEnded() {
         firstStart = true;
+        pauseNow = false;
+        var self = this;
+        if (adVideoPlayNow) {
+            vastTracker.complete();
+            this.initPlayerFor('video');
+        } else if (!adVideoPlayNow && preroll) {
+            self.videoWasCompleted = true;
+        }
+    },
+
+    ContainerClick: function ContainerClick() {
+        if (adVideoPlayNow) {
+            window.open(adObject.clickLink).focus();
+            vastTracker.click();
+        } else if (!adVideoPlayNow && pauseroll && getSource('video').typeVideo == 'live') {
+            p.pause();
+        }
     },
 
     initPlayerFor: function initPlayerFor(type) {
@@ -344,9 +482,42 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
         } else if (type == 'ad') {
             // console.log('ipfa');
             adVideoPlayNow = true;
+            adFirstStart = true;
             p.load(getSource('ad').source);
             p.setVolume(100);
             skipButtonPressed = false;
+        }
+    },
+
+    checkAdTime: function checkAdTime() {
+        if (adVideoPlayNow) {
+            (function () {
+                var fq = false,
+                    mp = false,
+                    tq = false;
+                var timerId = setInterval(function () {
+                    if (skipButtonPressed) {
+                        clearInterval(timerId);
+                    } else {
+                        if (progressEventsSeconds.length && p.getCurrentTime() >= progressEventsSeconds[0]) {
+                            vastTracker.setProgress(progressEventsSeconds.shift());
+                            console.log(currentDate() + " Ad event: progress");
+                        }
+                        // }
+                        if (p.getCurrentTime() >= p.getDuration() * 0.25 && !fq) {
+                            vastTracker.setProgress(p.getCurrentTime());
+                            fq = true;
+                        } else if (p.getCurrentTime() >= p.getDuration() * 0.5 && !mp) {
+                            vastTracker.setProgress(p.getCurrentTime());
+                            mp = true;
+                        } else if (p.getCurrentTime() >= p.getDuration() * 0.75 && !tq) {
+                            vastTracker.setProgress(p.getCurrentTime());
+                            tq = true;
+                            clearInterval(timerId);
+                        }
+                    }
+                }, 300);
+            })();
         }
     }
 });

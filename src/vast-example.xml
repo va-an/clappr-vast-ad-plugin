@@ -29,9 +29,9 @@
                             <Tracking event="creativeView"><![CDATA[http://localhost:8808/ad-event/creativeView]]></Tracking>
                             <Tracking event="acceptInvitationLinear"><![CDATA[http://localhost:8808/ad-event/acceptInvitationLinear]]></Tracking>
                             <Tracking event="closeLinear"><![CDATA[http://localhost:8808/ad-event/closeLinear]]></Tracking>
-                            <Tracking event="progress" offset="00:00:01"><![CDATA[http://localhost:8808/ad-event/progress-three]]></Tracking>
+                            <Tracking event="progress" offset="00:00:01"><![CDATA[http://localhost:8808/ad-event/progress-one]]></Tracking>
                             <Tracking event="progress" offset="00:00:05"><![CDATA[http://localhost:8808/ad-event/progress-five]]></Tracking>
-                            <Tracking event="progress" offset="00:00:04"><![CDATA[http://localhost:8808/ad-event/progress-seven]]></Tracking>
+                            <Tracking event="progress" offset="00:00:04"><![CDATA[http://localhost:8808/ad-event/progress-four]]></Tracking>
                             <Tracking event="expand">http://localhost:8808/ad-event/expand</Tracking>
                             <Tracking event="collapse">http://localhost:8808/ad-event/collapse</Tracking>
                         </TrackingEvents>

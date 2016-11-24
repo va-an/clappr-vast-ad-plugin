@@ -17,8 +17,8 @@
     setVideoType('vod');
 
     var vastUrl = 'http://localhost:8808/src/vast-example.xml';
-    setTypeAd('pauseroll');
-    //    setTypeAd('preroll');
+//    setTypeAd('pauseroll');
+        setTypeAd('preroll');
 
     var player = {
         height: 360,
@@ -30,17 +30,18 @@
         plugins: [adPlugin],
     };
 
-    cnfPlr = function () {
-        if (preroll) {
-            // something
-        } else if (pauseroll) {
-            player.source = mainVideo;
-            p = new Clappr.Player(player);
-            fsEventOn();
-        }
-    };
-
-    cnfPlr();
+    function cnfPrl2() {
+        player.source = getSource().source;
+        p = new Clappr.Player(player);
+        fsEventOn();
+    }
+    if (preroll) {
+        loadVAST(vastUrl, mainVideo).then(function () {
+            cnfPrl2();
+        });
+    } else if (pauseroll) {
+        cnfPrl2();
+    }
 </script>
 </body>
 </html>
