@@ -16,13 +16,11 @@
     var mainVideo = 'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4';
     setVideoType('vod');
 
-//    var vastUrl = 'http://v.adfox.ru/226279/getCode?pp=efi&ps=cdnc&p2=eyit&pfc=a&pfb=a&plp=a&pli=a&pop=a&pct=b&puid6=1&puid20=999999999&puid30=6836&pr=148598377&random=19837&eid1=6836:8676371:148598377&dl=http://cdn/vgtrk/default/';
+    //    var vastUrl = 'http://v.adfox.ru/226279/getCode?pp=efi&ps=cdnc&p2=eyit&pfc=a&pfb=a&plp=a&pli=a&pop=a&pct=b&puid6=1&puid20=999999999&puid30=6836&pr=148598377&random=19837&eid1=6836:8676371:148598377&dl=http://cdn/vgtrk/default/';
 
-        var vastUrl = 'http://localhost:8808/src/vast-example.xml';
-        setTypeAd('pauseroll');
-//    setTypeAd('preroll');
-
-
+    var vastUrl = 'http://localhost:8808/src/vast-example.xml';
+    //        setTypeAd('pauseroll');
+    setTypeAd('preroll');
     var player = {
         height: 360,
         width: 640,
@@ -32,26 +30,7 @@
         exitFullscreenOnEnd: false,
         plugins: [adPlugin],
     };
-
-    function cnfPrl2() {
-        player.source = getSource().source;
-        p = new Clappr.Player(player);
-        fsEventOn();
-    }
-    if (preroll) {
-        loadVAST(vastUrl, mainVideo).then(
-            function () {
-                cnfPrl2();
-            },
-            function (msg) {
-                player.source = getSource('video').source;
-                delete player.plugins;
-                p = new Clappr.Player(player);
-                console.log(msg);
-            });
-    } else if (pauseroll) {
-        cnfPrl2();
-    }
+    cnfPlr();
 </script>
 </body>
 </html>

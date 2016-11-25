@@ -15,8 +15,30 @@ let skipButtonPressed = false;
 let adFirstStart = '';
 let vct = '';
 
-
 adObject.adMediaFile = '';
+
+const cnfPlr = () => {
+    if (preroll) {
+        function cnfPlrAd() {
+            player.source = getSource().source;
+            p = new Clappr.Player(player);
+            fsEventOn();
+        }
+
+        loadVAST(vastUrl, mainVideo).then(
+            function () {
+                cnfPlrAd();
+            },
+            function (msg) {
+                player.source = getSource('video').source;
+                delete player.plugins;
+                p = new Clappr.Player(player);
+                console.log(msg);
+            });
+    } else if (pauseroll) {
+        cnfPlrAd();
+    }
+};
 
 const _visibilityAPI = (function () {
     var stateKey,
@@ -129,7 +151,7 @@ const loadVAST = (urlVast, video) => {
     return new Promise(function (resolve, rejected) {
         DMVAST.client.get(urlVast, function (r, e) {
             if (!r) {
-                rejected('Error loading VAST - WTF ¯\\\_(ツ)_/¯');
+                rejected('Error loading VAST - r is null');
             }
             console.log(r);
 
