@@ -117,10 +117,14 @@ var getSource = function getSource(type) {
             }
         }
     } else if (type == null) {
-        if (preroll) {
-            return getSource('ad');
-        } else if (pauseroll) {
-            return getSource('video');
+        if (!preroll && !pauseroll || preroll && pauseroll) {
+            console.log('Error - please configure type ag: setTypeAd(\'preroll\') or setTypeAd(\'pauseroll\')');
+        } else {
+            if (preroll) {
+                return getSource('ad');
+            } else if (pauseroll) {
+                return getSource('video');
+            }
         }
     }
 };
@@ -173,21 +177,8 @@ var loadVAST = function loadVAST(urlVast, video) {
                 r.ads[0].creatives[0].trackingEvents['skip'] = r.ads[0].creatives[0].trackingEvents['close'];
                 delete r.ads[0].creatives[0].trackingEvents['close'];
             }
-
-            // console.log(r.ads[0].creatives[0].trackingEvents.fullscreen[0]);
-            // console.log(r.ads[0].creatives[0].trackingEvents.expand[0]);
-
-            // console.log(r.ads[0].creatives[0].mediaFiles);
-            // console.log(r.ads[0].creatives[0].mediaFiles[0]);
-            // console.log(r.ads[0].creatives[0].mediaFiles[0].apiFramework);
-            // console.log(r.ads[0].creatives[0].mediaFiles[0].fileURL);
-            // console.log(r.ads[0].creatives[0].type);
-
-            // console.log('skip delay = ' + r.ads[0].creatives[0].skipDelay);
-
             adObject.adMediaFile = r.ads[0].creatives[0].mediaFiles[0].fileURL;
             adObject.clickLink = r.ads[0].creatives[0].videoClickThroughURLTemplate;
-
             vastTracker = new DMVAST.tracker(r.ads[0], r.ads[0].creatives[0]);
 
             // for vast-events: expand, collapse
@@ -306,6 +297,7 @@ var loadVAST = function loadVAST(urlVast, video) {
             if (r.ads[0].creatives[0].mediaFiles[0].apiFramework == 'VPAID') {
                 rejected('Error loading VAST - VPAID not supported');
             }
+            adFirstStart = true;
             resolve();
         });
     });
@@ -314,6 +306,7 @@ var loadVAST = function loadVAST(urlVast, video) {
 var adPlugin = Clappr.UIContainerPlugin.extend({
     name: 'ad_plugin',
     videoWasCompleted: false,
+    AdMuted: false,
 
     initialize: function initialize() {
         this.render();
@@ -325,6 +318,7 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
         this.listenTo(this.container, Clappr.Events.CONTAINER_PLAY, this.containerPlay);
         this.listenTo(this.container, Clappr.Events.CONTAINER_ENDED, this.containerEnded);
         this.listenTo(this.container, Clappr.Events.CONTAINER_CLICK, this.ContainerClick);
+        this.listenTo(this.container, Clappr.Events.CONTAINER_VOLUME, this.containerVolume);
     },
 
     show: function show() {
@@ -409,24 +403,20 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
         p.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
         var self = this;
         // console.log('play');
-        if (adVideoPlayNow && adFirstStart) {
-            vastTracker.trackURLs(customURLs);
-            adFirstStart = false;
-            console.log(currentDate() + " Ad event: CustomTracking");
-        }
-
-        if (preroll) {
-            if (adVideoPlayNow) {
-                if (firstStart) {
-                    p.setVolume(100);
-                    vastTracker.setDuration(p.getDuration());
-                    vastTracker.load();
-                    vastTracker.setProgress(0.1);
-                    firstStart = false;
-                } else {
-                    vastTracker.setPaused(false);
-                }
+        if (adVideoPlayNow) {
+            if (adFirstStart) {
+                vastTracker.setProgress(0.1);
+                vastTracker.setDuration(p.getDuration());
+                vastTracker.load();
+                p.setVolume(100);
+                vastTracker.trackURLs(customURLs);
+                console.log(currentDate() + " Ad event: CustomTracking");
+                adFirstStart = false;
+            } else {
+                vastTracker.setPaused(false);
             }
+        }
+        if (preroll) {
             if (this.videoWasCompleted) {
                 this.videoWasCompleted = false;
                 loadVAST(vastUrl, mainVideo).then(function () {
@@ -482,7 +472,6 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
         } else if (type == 'ad') {
             // console.log('ipfa');
             adVideoPlayNow = true;
-            adFirstStart = true;
             p.load(getSource('ad').source);
             p.setVolume(100);
             skipButtonPressed = false;
@@ -518,6 +507,15 @@ var adPlugin = Clappr.UIContainerPlugin.extend({
                     }
                 }, 300);
             })();
+        }
+    },
+
+    containerVolume: function containerVolume() {
+        if (adVideoPlayNow && p) {
+            if (p.getVolume() == 0 && !this.AdMuted || p.getVolume() != 0 && this.AdMuted) {
+                this.AdMuted = !this.AdMuted;
+                vastTracker.setMuted(this.AdMuted);
+            }
         }
     }
 });
