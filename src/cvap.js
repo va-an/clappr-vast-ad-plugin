@@ -17,13 +17,15 @@ let vct = '';
 
 adObject.adMediaFile = '';
 
+const cnfPlrAd = () => {
+    player.source = getSource().source;
+    p = new Clappr.Player(player);
+    fsEventOn();
+};
+
 const cnfPlr = () => {
     if (preroll) {
-        function cnfPlrAd() {
-            player.source = getSource().source;
-            p = new Clappr.Player(player);
-            fsEventOn();
-        }
+
 
         loadVAST(vastUrl, mainVideo).then(
             function () {
