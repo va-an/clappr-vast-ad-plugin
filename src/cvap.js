@@ -19,7 +19,7 @@ adObject.adMediaFile = '';
 
 const cnfPlrAd = () => {
     player.source = getSource().source;
-    player.plugins.push(adPlugin);
+    player.plugins ? player.plugins.push(adPlugin) : player.plugins = [adPlugin];
     p = new Clappr.Player(player);
     fsEventOn();
 };
