@@ -19,21 +19,19 @@ adObject.adMediaFile = '';
 
 const cnfPlrAd = () => {
     player.source = getSource().source;
+    player.plugins.push(adPlugin);
     p = new Clappr.Player(player);
     fsEventOn();
 };
 
 const cnfPlr = () => {
     if (preroll) {
-
-
         loadVAST(vastUrl, mainVideo).then(
             function () {
                 cnfPlrAd();
             },
             function (msg) {
                 player.source = getSource('video').source;
-                delete player.plugins;
                 p = new Clappr.Player(player);
                 console.log(msg);
             });
