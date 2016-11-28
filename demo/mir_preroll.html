@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+    <TITLE>HTMLplayer</TITLE>
+    <meta charset="utf-8"/>
+    <script type="text/javascript" src="//playercdn.cdnvideo.ru/aloha/clappr/clappr.min.js"></script>
+    <script type="text/javascript" src="//playercdn.cdnvideo.ru/aloha/clappr/level-selector.min.js"></script>
+    <!--<script type="text/javascript" src="//d11.cdnvideo.ru/videojs/clappr/clappr-ad-plugin/dist/cvap_full.js"></script>-->
+    <script src="../src/vast-client.js"></script>
+    <script src="../src/cvap.js"></script>
+</HEAD>
+<BODY style="margin-top:0px; margin-left:0px;">
+<div>
+    <div id="player"></div>
+    <script>
+        var mainVideo = 'http://mirtvpc.cdnvideo.ru/mirtv/mir24_121212.mp4';
+        setVideoType('vod');
+
+        //        var vastUrl = 'http://v.adfox.ru/226279/getCode?pp=efi&ps=cdnc&p2=eyit&pfc=a&pfb=a&plp=a&pli=a&pop=a&pct=b&puid6=1&puid20=999999999&puid30=6836&pr=148598377&random=19837&eid1=6836:8676371:148598377&dl=http://cdn/vgtrk/default/';
+
+        var vastUrl = 'http://localhost:8808/src/vast-example.xml';
+
+
+        //        setTypeAd('pauseroll');
+        setTypeAd('preroll');
+        var player = {
+            language: 'en-EN',
+            source: "http://mirtvpc.cdnvideo.ru/mirtv/mir24_121212.mp4",
+            width: 720,
+            height: 576,
+            autoPlay: true,
+            disableVideoTagContextMenu: true,
+            mediacontrol: {
+                seekbar: "#a5d30f", buttons: "#0094d7",
+            },
+            parentId: "#player",
+            exitFullscreenOnEnd: false,
+            plugins: [adPlugin],
+        };
+        cnfPlr();
+    </script>
+</div>
+</BODY>
+</HTML>

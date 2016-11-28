@@ -150,6 +150,7 @@ const loadVAST = (urlVast, video) => {
     return new Promise(function (resolve, rejected) {
         DMVAST.client.get(urlVast, function (r, e) {
             if (!r) {
+                adVideoPlayNow ? adVideoPlayNow = false : '';
                 rejected('Error loading VAST - r is null');
             }
             console.log(r);
@@ -244,6 +245,7 @@ const loadVAST = (urlVast, video) => {
             getSource('ad').source = adObject.adMediaFile;
 
             if (r.ads[0].creatives[0].mediaFiles[0].apiFramework == 'VPAID') {
+                adVideoPlayNow ? adVideoPlayNow = false : '';
                 rejected('Error loading VAST - VPAID not supported');
             }
             adFirstStart = true;
