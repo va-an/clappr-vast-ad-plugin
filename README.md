@@ -7,8 +7,8 @@ This work was started independently from https://github.com/kslimani/clappr-html
 At the moment I haven't time make code beautiful, It just works. (Yep, I know what code is awful). I definitely make all how need, but not right now.
 
 # Demo
-* preroll - http://d11.cdnvideo.ru/videojs/clappr/clappr-ad-plugin/demo/demo_player_preroll.html
-* pauseroll - http://d11.cdnvideo.ru/videojs/clappr/clappr-ad-plugin/demo/demo_player_pauseroll.html 
+* preroll - http://d11.cdnvideo.ru/videojs/clappr/test/demo_preroll.html
+* pauseroll - http://d11.cdnvideo.ru/videojs/clappr/test/demo_pauseroll.html 
 
 If it dont't work - let me know.
 
