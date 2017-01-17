@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>cvap demo</title>
+    <script src="../dist/clappr.min.cdnvideo.repo.js"></script>
+    <!--<script src="../dist/cvapg.js"></script>-->
+    <!--<script src="../dist/cvap.js"></script>-->
+    <!--<script src="../dist/vast-client.js"></script>-->
+    <link rel="icon" href="data:;base64,=">
+</head>
+<body>
+<div id="player"></div>
+<script>
+    var adVideo = 'small.mp4';
+    var player = {
+        source: "http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4",
+        height: 360,
+        width: 640,
+        hideMediaControl: false,
+        parentId: "#player",
+        autoPlay: true,
+        exitFullscreenOnEnd: false,
+    };
+</script>
+</body>
+</html>

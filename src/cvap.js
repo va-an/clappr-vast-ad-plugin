@@ -405,6 +405,7 @@ let adPlugin = Clappr.UIContainerPlugin.extend({
             p.load(getSource('ad').source);
             p.setVolume(100);
             skipButtonPressed = false;
+            p.play();
         }
     },
 

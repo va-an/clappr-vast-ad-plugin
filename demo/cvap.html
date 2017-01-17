@@ -4,23 +4,25 @@
     <meta charset="UTF-8">
     <title>cvap demo</title>
     <script src="../dist/clappr.min.cdnvideo.repo.js"></script>
-    <script type="text/javascript" src="//playercdn.cdnvideo.ru/aloha/clappr/level-selector.min.js"></script>
-    <script src="../dist/cvapg.js"></script>
+    <!--<script type="text/javascript" src="//playercdn.cdnvideo.ru/aloha/clappr/level-selector.min.js"></script>-->
+    <!--<script src="../dist/cvapg.js"></script>-->
+    <script src="../dist/cvap.js"></script>
+    <script src="../dist/vast-client.js"></script>
     <link rel="icon" href="data:;base64,=">
 </head>
 <body>
 <div id="player"></div>
 <script>
-//    var mainVideo = 'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4';
-//    setVideoType('vod');
+    var mainVideo = 'http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4';
+    setVideoType('vod');
 
-    var mainVideo = 'http://hls.mirtv.cdnvideo.ru/mirtv-parampublish/smil:mir24.smil/playlist.m3u8';
+//    var mainVideo = 'http://hls.mirtv.cdnvideo.ru/mirtv-parampublish/smil:mir24.smil/playlist.m3u8';
     //        setVideoType('vod');
-    setVideoType('live');
+//    setVideoType('live');
 
-        var vastUrl = 'http://v.adfox.ru/226279/getCode?pp=efi&ps=cdnc&p2=eyit&pfc=a&pfb=a&plp=a&pli=a&pop=a&pct=b&puid6=1&puid20=999999999&puid30=6836&pr=148598377&random=19837&eid1=6836:8676371:148598377&dl=http://cdn/vgtrk/default/';
+//        var vastUrl = 'http://v.adfox.ru/226279/getCode?pp=efi&ps=cdnc&p2=eyit&pfc=a&pfb=a&plp=a&pli=a&pop=a&pct=b&puid6=1&puid20=999999999&puid30=6836&pr=148598377&random=19837&eid1=6836:8676371:148598377&dl=http://cdn/vgtrk/default/';
 
-//    var vastUrl = 'http://localhost:8808/src/vast-example.xml';
+    var vastUrl = 'http://localhost:8008/src/vast-example.xml';
 //    setTypeAd('pauseroll');
         setTypeAd('preroll');
 
@@ -30,7 +32,7 @@
         hideMediaControl: false,
         parentId: "#player",
         autoPlay: true,
-        exitFullscreenOnEnd: false,
+            exitFullscreenOnEnd: false,
 //        plugins: [LevelSelector],
     };
     cnfPlr();

@@ -1,0 +1,39 @@
+<HTML>
+<HEAD>
+    <TITLE>HTMLplayer</TITLE>
+    <script type="text/javascript" src="//playercdn.cdnvideo.ru/aloha/clappr/clappr.min.js"></script>
+</HEAD>
+<div>
+    <div id="player"></div>
+    <script>
+        var player = new Clappr.Player({
+            language: 'en-EN',
+            source: "paste your source here",
+            width: 640,
+            height: 360,
+            autoPlay: true,
+            disableVideoTagContextMenu: true,
+            parentId: "#player",
+        });
+
+        var bufTime = 0;
+        var z = 20;
+        var timerId = setInterval(function () {
+            if (player.buffering && player.isPlaying() || !player.isPlaying()) {
+                bufTime += 1;
+            } else if (!player.buffering) {
+                bufTime = 0;
+            }
+            console.log(bufTime);
+            if (bufTime >= z) {
+                console.log('bf > ' + z);
+                bufTime = 0;
+                player.stop();
+                player.play();
+            }
+        }, 1000);
+
+    </script>
+</div>
+</BODY>
+</HTML>

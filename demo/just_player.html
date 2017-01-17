@@ -1,0 +1,23 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../playerPage.css">
+</head>
+<body class="playerPage">
+<script src="//playercdn.cdnvideo.ru/aloha/clappr/clappr.min.js"></script>
+<div id="player"></div>
+<script>
+    //    var playerElement = document.getElementById("player-wrapper");
+    var player = new Clappr.Player({
+        source: "http://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4",
+        autoPlay: true,
+        height: 400,
+        width: 700,
+        hideMediaControl: false,
+        parentId: "#player"
+    });
+    //    player.attachTo(playerElement);
+    console.log(player.core.getCurrentPlayback().name);
+</script>
+</body>
+</html>
