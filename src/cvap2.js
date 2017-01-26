@@ -4,12 +4,45 @@ let preroll = true;
 let pauseroll = false;
 let sbPressed = false;
 let adFirstStart = true;
-let skipButtonPressed = false;
+let sbp = false;
+let pauseNow = false;
 let progressEventsSeconds = [];
+let vmv = false;
+let vml = false;
+let vct;
 
 const getCurrentDate = () => {
     let d = new Date();
     return "(" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + ") ";
+};
+
+const setTypeVideo = (type) => {
+    if (type == 'vod') {
+        vmv = true;
+    } else if (type == 'live') {
+        vml = true;
+    }
+};
+
+const getVideoSource = () => {
+    if (preroll) {
+        return videoAd;
+    } else if (pauseroll) {
+        return videoMain;
+    }
+};
+
+const setTypeAd = (type) => {
+    adVideoPlayNow = false;
+    preroll = false;
+    pauseroll = false;
+
+    if (type == 'preroll') {
+        adVideoPlayNow = true;
+        preroll = true;
+    } else if (type == 'pauseroll') {
+        pauseroll = true;
+    }
 };
 
 const _visibilityAPI = (function () {
@@ -60,6 +93,9 @@ let clapprAdVastPlugin = Clappr.UIContainerPlugin.extend({
     },
 
     render: function render() {
+
+        console.log('render');
+
         this.$el.css('font-size', '20px');
         this.$el.css('position', 'absolute');
         this.$el.css('color', 'white');
@@ -75,6 +111,9 @@ let clapprAdVastPlugin = Clappr.UIContainerPlugin.extend({
         if (preroll) {
             this.show();
         } else if (pauseroll) {
+
+            console.log(adVideoPlayNow);
+
             if (adVideoPlayNow) {
                 this.show();
             } else {
@@ -106,8 +145,9 @@ let clapprAdVastPlugin = Clappr.UIContainerPlugin.extend({
             vastTracker.setPaused(true);
         }
         // not activate 'play' event when pause
-        if (!adVideoPlayNow) {
+        else {
             player.pause();
+            pauseNow = true;
         }
     },
 
@@ -131,30 +171,63 @@ let clapprAdVastPlugin = Clappr.UIContainerPlugin.extend({
             } else {
                 vastTracker.setPaused(false);
             }
+        } else {
+            this.hide();
+        }
+        if (preroll) {
+
+        } else if (pauseroll) {
+            if (!adVideoPlayNow && pauseNow && player.isPlaying()) {
+                pauseNow = false;
+                if (vmv) {
+                    vct = player.getCurrentTime();
+                }
+                this.switchSource('va');
+                this.show();
+            }
         }
     },
 
     containerEnded: function () {
-        vastTracker.complete();
-        this.switchSource();
+        pauseNow = false;
+
+        if (adVideoPlayNow) {
+            vastTracker.complete();
+        }
+        this.switchSource('av');
     },
 
-    switchSource: function () {
+    switchSource: function (type) {
         if (player != null) {
-            adVideoPlayNow = false;
-            mainVideoPlayNow = true;
-            let le = videoAd;
+            let f, s;
+            if (type == 'av') {
+                adVideoPlayNow = false;
+                f = videoAd;
+                s = videoMain;
+            } else if (type == 'va') {
+                adVideoPlayNow = true;
+                f = videoMain;
+                s = videoAd;
+            }
+            // adVideoPlayNow = false;
+            // mainVideoPlayNow = true;
             let el = player.core.getCurrentPlayback().el;
 
             let endListener = () => {
                 el.removeEventListener('ended', endListener);
-                el.src = le;
-                el.load();
+                el.src = f;
+                // el.load();
+                el.play();
             };
-            el.src = videoMain;
-            el.load();
+
+            el.src = s;
+            // el.load();
             el.addEventListener('ended', endListener);
             !sbPressed ? el.play() : null;
+
+            if (type == 'av' && vmv) {
+                player.seek(vct);
+            }
         }
     },
 
@@ -167,13 +240,10 @@ let clapprAdVastPlugin = Clappr.UIContainerPlugin.extend({
                 if (player.getCurrentTime() > skipDelay) {
                     clearInterval(timerId);
                     ab.onclick = () => {
-                        // skipButtonPressed = true;
-                        // vastTracker.skip();
-                        //
-                        skipButtonPressed = true;
+                        sbp = true;
                         vastTracker.skip();
                         sbPressed = true;
-                        this.switchSource();
+                        this.switchSource('av');
                     };
                     ab.textContent = 'Skip Ad';
                 }
@@ -198,7 +268,7 @@ let clapprAdVastPlugin = Clappr.UIContainerPlugin.extend({
         if (adVideoPlayNow) {
             let fq = false, mp = false, tq = false;
             let timerId = setInterval(function () {
-                if (skipButtonPressed) {
+                if (sbp) {
                     clearInterval(timerId);
                 } else {
                     if (progressEventsSeconds.length && player.getCurrentTime() >= progressEventsSeconds[0]) {
@@ -221,7 +291,3 @@ let clapprAdVastPlugin = Clappr.UIContainerPlugin.extend({
         }
     },
 });
-
-function outerFunc() {
-    console.log('outer');
-}

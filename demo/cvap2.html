@@ -17,6 +17,10 @@
     var videoMain = 'https://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4';
     var vastUrl = 'http://192.168.0.74:8008/src/vast-example.xml';
 
+//    setTypeAd('preroll');
+    setTypeAd('pauseroll');
+    setTypeVideo('vod');
+
     var loadVAST = new Promise(function (resolve, reject) {
         DMVAST.client.get(vastUrl, function (r, e) {
             vastTracker = new DMVAST.tracker(r.ads[0], r.ads[0].creatives[0]);
@@ -47,7 +51,7 @@
 
     loadVAST.then(function () {
         player = new Clappr.Player({
-            source: videoAd,
+            source: getVideoSource(),
             autoPlay: true,
             height: 300,
             width: 600,
