@@ -1,55 +1,23 @@
 <html>
 <head>
+    <script src="../dist/vast-client.js"></script>
+    <script type="text/javascript" src="//playercdn.cdnvideo.ru/aloha/clappr/clappr.min.js"></script>
+    <script type="text/javascript" src="../dist/cvap2.js"></script>
+    <!--<script src="https://cdn.jsdelivr.net/clappr/latest/clappr.min.js"></script>-->
     <meta charset="utf-8">
 </head>
 <body>
-<script type="text/javascript" src="//playercdn.cdnvideo.ru/aloha/clappr/clappr.min.js"></script>
-<script type="text/javascript" src="../dist/cvap2.js"></script>
-<script src="../dist/vast-client.js"></script>
-<!--<script src="https://cdn.jsdelivr.net/clappr/latest/clappr.min.js"></script>-->
 <div id="player"></div>
 <script>
-    var videoAd;
-    var player;
-    var skipDelay;
-    var vastTracker;
-    var clickLink;
     var videoMain = 'https://d11.cdnvideo.ru/videojs/files/h264-high-aac.mp4';
     var vastUrl = 'http://192.168.0.74:8008/src/vast-example.xml';
 
-//    setTypeAd('preroll');
-    setTypeAd('pauseroll');
+    setTypeAd('preroll');
+//    setTypeAd('pauseroll');
+
     setTypeVideo('vod');
 
-    var loadVAST = new Promise(function (resolve, reject) {
-        DMVAST.client.get(vastUrl, function (r, e) {
-            vastTracker = new DMVAST.tracker(r.ads[0], r.ads[0].creatives[0]);
-            vastTracker.on('start', () => console.log(getCurrentDate() + " Ad event: start"));
-            vastTracker.on('mute', () => console.log(getCurrentDate() + " Ad event: mute"));
-            vastTracker.on('unmute', () => console.log(getCurrentDate() + " Ad event: unmute"));
-            vastTracker.on('skip', () => console.log(getCurrentDate() + " Ad event: skip"));
-            vastTracker.on('clickthrough', url => console.log(getCurrentDate() + " Ad event: click"));
-            vastTracker.on('complete', () => console.log(getCurrentDate() + " Ad event: complete"));
-            vastTracker.on('firstQuartile', () => console.log(getCurrentDate() + " Ad event: firstQuartile"));
-            vastTracker.on('midpoint', () => console.log(getCurrentDate() + " Ad event: midpoint"));
-            vastTracker.on('thirdQuartile', () => console.log(getCurrentDate() + " Ad event: thirdQuartile"));
-
-            for (let k in vastTracker.trackingEvents) {
-                let re = /progress-\d*/;
-                if (!k.search(re)) {
-                    progressEventsSeconds.push(parseInt(k.split('-')[1]));
-                }
-            }
-            progressEventsSeconds.sort((a, b) => a - b);
-
-            videoAd = r.ads[0].creatives[0].mediaFiles[0].fileURL;
-            skipDelay = r.ads[0].creatives[0].skipDelay;
-            clickLink = r.ads[0].creatives[0].videoClickThroughURLTemplate;
-            resolve();
-        });
-    });
-
-    loadVAST.then(function () {
+    lv(vastUrl).then(function () {
         player = new Clappr.Player({
             source: getVideoSource(),
             autoPlay: true,
@@ -60,6 +28,7 @@
             plugins: [clapprAdVastPlugin],
             parentId: "#player"
         });
+        fsEventOn();
     });
 </script>
 </body>

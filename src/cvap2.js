@@ -9,7 +9,55 @@ let pauseNow = false;
 let progressEventsSeconds = [];
 let vmv = false;
 let vml = false;
-let vct;
+let vct = 0;
+let isFullscreen = false;
+let videoAd;
+let player;
+let skipDelay;
+let vastTracker;
+let clickLink;
+
+const lv = (vu) => {
+    return new Promise(function (resolve, reject) {
+        DMVAST.client.get(vu, function (r, e) {
+            vastTracker = new DMVAST.tracker(r.ads[0], r.ads[0].creatives[0]);
+            vastTracker.on('start', () => console.log(getCurrentDate() + " Ad event: start"));
+            vastTracker.on('mute', () => console.log(getCurrentDate() + " Ad event: mute"));
+            vastTracker.on('unmute', () => console.log(getCurrentDate() + " Ad event: unmute"));
+            vastTracker.on('skip', () => console.log(getCurrentDate() + " Ad event: skip"));
+            vastTracker.on('clickthrough', url => console.log(getCurrentDate() + " Ad event: click"));
+            vastTracker.on('complete', () => console.log(getCurrentDate() + " Ad event: complete"));
+            vastTracker.on('firstQuartile', () => console.log(getCurrentDate() + " Ad event: firstQuartile"));
+            vastTracker.on('midpoint', () => console.log(getCurrentDate() + " Ad event: midpoint"));
+            vastTracker.on('thirdQuartile', () => console.log(getCurrentDate() + " Ad event: thirdQuartile"));
+            vastTracker.on('fullscreen', () => console.log(getCurrentDate() + " Ad event: fullscreen"));
+            vastTracker.on('exitFullscreen', () => console.log(getCurrentDate() + " Ad event: exitFullscreen"));
+
+            for (let k in vastTracker.trackingEvents) {
+                let re = /progress-\d*/;
+                if (!k.search(re)) {
+                    progressEventsSeconds.push(parseInt(k.split('-')[1]));
+                }
+            }
+            progressEventsSeconds.sort((a, b) => a - b);
+
+            videoAd = r.ads[0].creatives[0].mediaFiles[0].fileURL;
+            skipDelay = r.ads[0].creatives[0].skipDelay;
+            clickLink = r.ads[0].creatives[0].videoClickThroughURLTemplate;
+            resolve();
+        });
+    });
+};
+
+const fsEventOn = () => {
+    player.on(Clappr.Events.PLAYER_FULLSCREEN, function () {
+        isFullscreen = !isFullscreen;
+        if (adVideoPlayNow) {
+            vastTracker.setFullscreen(isFullscreen);
+            // vastTracker.setExpand(isFullscreen);
+        }
+    })
+};
 
 const getCurrentDate = () => {
     let d = new Date();
@@ -93,9 +141,6 @@ let clapprAdVastPlugin = Clappr.UIContainerPlugin.extend({
     },
 
     render: function render() {
-
-        console.log('render');
-
         this.$el.css('font-size', '20px');
         this.$el.css('position', 'absolute');
         this.$el.css('color', 'white');
@@ -111,9 +156,6 @@ let clapprAdVastPlugin = Clappr.UIContainerPlugin.extend({
         if (preroll) {
             this.show();
         } else if (pauseroll) {
-
-            console.log(adVideoPlayNow);
-
             if (adVideoPlayNow) {
                 this.show();
             } else {
@@ -165,6 +207,7 @@ let clapprAdVastPlugin = Clappr.UIContainerPlugin.extend({
         player.core.mediaControl.container.settings.seekEnabled = !adVideoPlayNow;
 
         if (adVideoPlayNow) {
+            this.show();
             if (adFirstStart) {
                 vastTracker.setProgress(0.1);
                 adFirstStart = false;
@@ -193,8 +236,12 @@ let clapprAdVastPlugin = Clappr.UIContainerPlugin.extend({
 
         if (adVideoPlayNow) {
             vastTracker.complete();
+            this.switchSource('av');
+        } else if (preroll) {
+            this.switchSource('va');
+            adVideoPlayNow = true;
+            player.pause();
         }
-        this.switchSource('av');
     },
 
     switchSource: function (type) {
@@ -209,20 +256,21 @@ let clapprAdVastPlugin = Clappr.UIContainerPlugin.extend({
                 f = videoMain;
                 s = videoAd;
             }
-            // adVideoPlayNow = false;
-            // mainVideoPlayNow = true;
             let el = player.core.getCurrentPlayback().el;
 
-            let endListener = () => {
-                el.removeEventListener('ended', endListener);
-                el.src = f;
-                // el.load();
-                el.play();
-            };
+            // let endListener = () => {
+            //     el.removeEventListener('ended', endListener);
+            //     el.src = f;
+            //     // el.load();
+            //     el.play();
+            // };
 
             el.src = s;
             // el.load();
-            el.addEventListener('ended', endListener);
+
+            // if (!pauseroll) {
+            //     el.addEventListener('ended', endListener);
+            // }
             !sbPressed ? el.play() : null;
 
             if (type == 'av' && vmv) {
@@ -244,6 +292,7 @@ let clapprAdVastPlugin = Clappr.UIContainerPlugin.extend({
                         vastTracker.skip();
                         sbPressed = true;
                         this.switchSource('av');
+                        sbPressed = false;
                     };
                     ab.textContent = 'Skip Ad';
                 }
